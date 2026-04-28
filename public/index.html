@@ -61,22 +61,20 @@
   }
 
   .sidebar-logo {
-    padding: 26px 22px 22px;
+    padding: 24px 22px 20px;
     border-bottom: 1px solid var(--border2);
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: column;
+    gap: 8px;
   }
 
-  .logo-mark {
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
+  .logo-full-svg {
+    width: 160px;
+    height: auto;
+    display: block;
   }
 
-  .logo-text-wrap { line-height: 1.25; }
-  .logo-title { font-size: 15px; font-weight: bold; color: var(--white); letter-spacing: -0.2px; }
-  .logo-sub   { font-size: 12px; color: var(--text-dim); margin-top: 1px; }
+  .logo-sub { font-size: 11px; color: var(--text-dim); letter-spacing: 0.5px; }
 
   .sidebar-nav { padding: 18px 12px; flex: 1; }
 
@@ -137,21 +135,56 @@
   /* ── Main ──────────────────────────────── */
   .main-panel { flex: 1; overflow-y: auto; background: var(--navy); }
 
-  .topbar {
-    background: var(--sidebar-bg);
-    border-bottom: 1px solid var(--border2);
-    padding: 0 32px;
-    height: 64px;
+  .content { padding: 28px 32px; max-width: 860px; }
+
+  /* ── Sidebar context panel ─────────────── */
+  .sidebar-context {
+    display: none;
+    padding: 16px 18px;
+    border-top: 1px solid var(--border2);
+    margin: 0 0 0 0;
+  }
+  .sidebar-context.active { display: block; }
+  .ctx-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--violet);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 50;
+    gap: 6px;
   }
-  .topbar-title { font-size: 18px; font-weight: bold; color: var(--white); letter-spacing: -0.3px; }
-  .topbar-sub   { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
-
-  .content { padding: 28px 32px; max-width: 860px; }
+  .ctx-body {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+  .ctx-body p { margin-bottom: 8px; }
+  .ctx-body p:last-child { margin-bottom: 0; }
+  .ctx-step {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .ctx-step-num {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(120,86,255,0.25);
+    color: var(--violet);
+    font-size: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
 
   .panel { display: none; }
   .panel.active { display: block; }
@@ -379,21 +412,8 @@
   ══════════════════════ -->
   <div class="sidebar">
     <div class="sidebar-logo">
-      <!-- CM envelope marque (white version) -->
-      <svg class="logo-mark" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Campaign Monitor logo">
-        <!-- Envelope body -->
-        <rect x="3" y="9" width="30" height="20" rx="2.5" fill="#7856ff"/>
-        <!-- Envelope flap fold lines -->
-        <path d="M3 11.5L18 20.5L33 11.5" stroke="white" stroke-width="1.8" stroke-linejoin="round" fill="none"/>
-        <!-- Left flap -->
-        <path d="M3 28L13.5 19" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-        <!-- Right flap -->
-        <path d="M33 28L22.5 19" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <div class="logo-text-wrap">
-        <div class="logo-title">Campaign Monitor</div>
-        <div class="logo-sub">Transactional Tester</div>
-      </div>
+      <svg class="logo-full-svg" id="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2595.7 270.73" aria-label="Campaign Monitor"><defs><style>.cls-1{fill:#fff;}.cls-2{fill:#7856ff;}</style></defs><g id="Logo_Full"><path class="cls-1" d="M1277.68,7.34c-10.34,0-18.29,2.22-18.29,11.77v9.35c0,9.54,7.95,12,18.29,12s18.3-2.47,18.3-12V19.11C1296,9.56,1288,7.34,1277.68,7.34Z"/><path class="cls-1" d="M1285.11,59.17h-14.58a8.75,8.75,0,0,0-8.75,8.75V193.17a8.76,8.76,0,0,0,8.75,8.76h14.58a8.76,8.76,0,0,0,8.75-8.76V67.92A8.75,8.75,0,0,0,1285.11,59.17Z"/><path class="cls-1" d="M859.35,57.71c-21.21,0-36.07,9.27-47.2,24.12C804.74,67,790.42,57.71,770.27,57.71c-21.47,0-33.66,11.66-42.68,24.12V67.91a8.74,8.74,0,0,0-8.75-8.74H704.26a8.74,8.74,0,0,0-8.75,8.74V193.17a8.76,8.76,0,0,0,8.75,8.76h14.57a8.75,8.75,0,0,0,8.75-8.76V121.61c0-21.48,12.19-34.75,30-34.75s28.36,12.21,28.36,34v72.36a8.76,8.76,0,0,0,8.75,8.76h14.58a8.76,8.76,0,0,0,8.75-8.76V121.61c0-22.54,12.45-34.75,30-34.75,18,0,28.36,12,28.36,34.2v72.11a8.75,8.75,0,0,0,8.74,8.76h14.58a8.76,8.76,0,0,0,8.75-8.76V111.26C908.39,77.06,889.83,57.71,859.35,57.71Z"/><path class="cls-1" d="M2212.61,7.34c-10.33,0-18.3,2.22-18.3,11.77v9.35c0,9.54,8,12,18.3,12s18.3-2.47,18.3-12V19.11C2230.91,9.56,2223,7.34,2212.61,7.34Z"/><path class="cls-1" d="M2220.05,59.17h-14.59a8.75,8.75,0,0,0-8.75,8.75V193.17a8.77,8.77,0,0,0,8.75,8.76h14.59a8.75,8.75,0,0,0,8.73-8.76V67.92A8.74,8.74,0,0,0,2220.05,59.17Z"/><path class="cls-1" d="M453.41,44.55a62.56,62.56,0,0,1,38.17,12.83,8.29,8.29,0,0,0,5.09,1.72,8.39,8.39,0,0,0,6-2.46l11.22-11.22a8.43,8.43,0,0,0-.7-12.54A94.62,94.62,0,0,0,453.41,12a95.81,95.81,0,0,0,0,191.62,94.64,94.64,0,0,0,59.73-20.88,8.42,8.42,0,0,0,.7-12.53L502.62,159a8.46,8.46,0,0,0-6-2.45,8.3,8.3,0,0,0-5.09,1.7,62.51,62.51,0,0,1-38.15,12.82,63.26,63.26,0,1,1,0-126.52Z"/><path class="cls-1" d="M1445.52,59.17h-14.58a8.76,8.76,0,0,0-8.76,8.75V82c-10.33-14.58-24.91-24.12-47.71-24.12-32.88,0-65,26-65,72.63V131c0,46.39,31.81,72.65,65,72.65,23.32,0,37.9-10.71,47.71-23.71l.26-.33v13c0,24.13-18.63,46.22-44.61,46.22-16,0-30.59-7.39-37.92-19.83a8.74,8.74,0,0,0-12-2.93l-6.17,4.09a8.79,8.79,0,0,0-3,12c12,19.68,33.41,32.79,60.45,32.79,46.4,0,75-33.13,75-72.9V67.92A8.74,8.74,0,0,0,1445.52,59.17ZM1419.28,131c0,26.78-18.4,44.82-39.34,44.82-21.21,0-37.87-17.24-37.87-44.82v-.53c0-27,16.93-44.79,37.87-44.79s39.34,18,39.34,44.79Z"/><path class="cls-1" d="M2124.37,57.83c-21.75,0-34.73,11-43.75,24V67.91a8.74,8.74,0,0,0-8.75-8.74h-14.59a8.75,8.75,0,0,0-8.73,8.74V193.17a8.76,8.76,0,0,0,8.73,8.76h14.59c4.83,0,8.75-3.92,8.75-10.07V116.43a30.76,30.76,0,1,1,61.52,0v76.74a8.75,8.75,0,0,0,8.73,8.76h14.58a8.76,8.76,0,0,0,8.75-8.76V111.38C2174.2,79,2155.9,57.83,2124.37,57.83Z"/><path class="cls-1" d="M1552.59,57.83c-21.75,0-34.74,11-43.75,24V67.91a8.75,8.75,0,0,0-8.75-8.74H1485.5a8.75,8.75,0,0,0-8.73,8.74V193.17a8.76,8.76,0,0,0,8.73,8.76h14.59c4.82,0,8.75-3.92,8.75-10.07V116.43a30.76,30.76,0,1,1,61.51,0v76.74a8.76,8.76,0,0,0,8.73,8.76h14.59a8.76,8.76,0,0,0,8.75-8.76V111.38C1602.42,79,1584.12,57.83,1552.59,57.83Z"/><path class="cls-1" d="M2589.86,59.48c-.4-.18-.72-.3-.91-.37-.36-.1-.73-.18-1.13-.26a42.15,42.15,0,0,0-47.2,22.86V67.92a8.75,8.75,0,0,0-8.75-8.75h-14.58a8.76,8.76,0,0,0-8.75,8.75V193.18a8.77,8.77,0,0,0,8.75,8.75h14.58a8.75,8.75,0,0,0,8.75-8.75v-53c0-42.82,22.35-50.52,35.25-49.48,2.52.21,4.74.55,6.63.81,0,0,.7.08,1.08.1a5,5,0,0,0,.55,0,6.19,6.19,0,0,0,6.06-5l3.23-20.6a7.16,7.16,0,0,0,.07-.94A6.18,6.18,0,0,0,2589.86,59.48Z"/><path class="cls-1" d="M1958,57.83c-43,0-74.48,32.61-74.48,72.63v.69c0,40,31.53,72.63,74.48,72.63s74.48-32.61,74.48-72.63v-.69C2032.49,90.44,2001,57.83,1958,57.83Zm41.93,73v.44c0,24.48-17,44.28-41.93,44.55-24.89-.27-41.93-20.07-41.93-44.55v-.89c0-24.48,17-44.28,41.93-44.55,24.89.27,41.93,20.07,41.93,44.55Z"/><path class="cls-1" d="M2417.42,57.83c-43,0-74.48,32.61-74.48,72.63v.69c0,40,31.53,72.63,74.48,72.63s74.48-32.61,74.48-72.63v-.69C2491.9,90.44,2460.37,57.83,2417.42,57.83Zm41.92,73v.44c0,24.48-17,44.28-41.92,44.55-24.89-.27-41.93-20.07-41.93-44.55v-.89c0-24.48,17-44.28,41.93-44.55,24.88.27,41.92,20.07,41.92,44.55Z"/><path class="cls-1" d="M1858.17,14h-14.63a8.76,8.76,0,0,0-7,3.52l-60.28,82.34L1716,17.49a8.78,8.78,0,0,0-7-3.52h-14.62a8.76,8.76,0,0,0-8.75,8.76V193.17a8.76,8.76,0,0,0,8.75,8.76h14.58a8.76,8.76,0,0,0,8.75-8.76V74.94l53.24,68.31.12.14.44.55h0a6.33,6.33,0,0,0,9.51,0h0l.43-.55.13-.14,53.24-68.31V193.17a8.76,8.76,0,0,0,8.75,8.76h14.58a8.76,8.76,0,0,0,8.75-8.76V22.73A8.76,8.76,0,0,0,1858.17,14Z"/><polygon class="cls-1" points="1776.27 146.09 1776.26 146.09 1776.26 146.09 1776.27 146.09"/><path class="cls-1" d="M1010.69,57.83c-22.79,0-37.38,9.42-47.71,24V67.92a8.75,8.75,0,0,0-8.76-8.75H939.65a8.75,8.75,0,0,0-8.75,8.75V251.76a8.76,8.76,0,0,0,8.75,8.77h14.57a8.77,8.77,0,0,0,8.76-8.77V179.6c9.81,13,24.39,24,47.71,24,33.14,0,65-26.25,65-72.64v-.54C1075.64,83.81,1043.57,57.83,1010.69,57.83ZM1043.08,131c0,26.77-18.39,44.81-39.33,44.81-21.22,0-37.87-17.24-37.87-44.81v-.54c0-27,16.93-44.79,37.87-44.79s39.33,18,39.33,44.79Z"/><path class="cls-1" d="M674.36,179.27h0a6.19,6.19,0,0,1-6.19-6.19V67.92a8.75,8.75,0,0,0-8.75-8.75H644.85a8.75,8.75,0,0,0-8.75,8.75V81.83c-10.34-14.58-24.93-24-47.73-24-32.87,0-65,26-65,72.63V131c0,46.39,31.81,72.64,65,72.64,24,0,41-10.78,48.25-24a30.78,30.78,0,0,0,29.59,22.32h8.14a6.18,6.18,0,0,0,6.19-6.18v-10.3A6.18,6.18,0,0,0,674.36,179.27ZM633.23,131c0,26.77-18.39,44.81-39.33,44.81C572.68,175.81,556,158.57,556,131v-.54c0-27,16.92-44.79,37.87-44.79s39.33,18,39.33,44.79Z"/><path class="cls-1" d="M1240.26,179.27h0a6.18,6.18,0,0,1-6.18-6.19V67.92a8.75,8.75,0,0,0-8.75-8.75h-14.58a8.75,8.75,0,0,0-8.75,8.75V81.83c-10.34-14.58-24.92-24-47.72-24-32.87,0-65,26-65,72.63V131c0,46.39,31.81,72.64,65,72.64,24,0,41-10.78,48.25-24a30.78,30.78,0,0,0,29.59,22.32h8.14a6.18,6.18,0,0,0,6.19-6.18v-10.3A6.18,6.18,0,0,0,1240.26,179.27ZM1199.14,131c0,26.77-18.39,44.81-39.34,44.81-21.21,0-37.86-17.24-37.86-44.81v-.54c0-27,16.92-44.79,37.86-44.79s39.34,18,39.34,44.79Z"/><path class="cls-1" d="M2327.06,59.17H2296.6V20.09h0a6.18,6.18,0,0,0-9.73-5h0l-15.24,10.69a16.28,16.28,0,0,0-7.11,13.46V59.17h-10.34a8.77,8.77,0,0,0-8.77,8.74v9a8.77,8.77,0,0,0,8.77,8.75h10.34v77c0,30.75,16.68,41.09,40.3,41.09,12.51,0,25.36-4.84,25.36-4.84s4.36-1.3,3.25-6.38c-.37-1.74-2.55-13.73-2.55-13.73-.53-2.94-1.74-5.25-5.91-4.63a67.13,67.13,0,0,1-11.16,1c-10.86,0-17.21-5-17.21-17.5v-72h30.46a8.73,8.73,0,0,0,8.75-8.75v-9A8.74,8.74,0,0,0,2327.06,59.17Z"/><path class="cls-2" d="M255.92,31.1a9.82,9.82,0,0,0-13.67-2.41L1.47,197.29a9.79,9.79,0,0,0,8,4.18H247.88a9.82,9.82,0,0,0,9.81-9.82V36.57a9.77,9.77,0,0,0-1.77-5.47"/><path class="cls-2" d="M15.15,28.69A9.82,9.82,0,0,0-.3,36.57V191.94L114.34,98Z"/></g></svg>
+      <div class="logo-sub">Transactional Tester</div>
     </div>
 
     <div class="sidebar-nav">
@@ -409,6 +429,37 @@
       </button>
     </div>
 
+    <!-- Context panels — shown based on active tab -->
+    <div class="sidebar-context active" id="ctx-smart">
+      <div class="ctx-title">⚡ Smart Email</div>
+      <div class="ctx-body">
+        <div class="ctx-step"><div class="ctx-step-num">1</div><div>Enter your <strong style="color:var(--white)">API key</strong> above, then click <strong style="color:var(--white)">Load Smart Emails</strong>.</div></div>
+        <div class="ctx-step"><div class="ctx-step-num">2</div><div>Select a template from the list that appears.</div></div>
+        <div class="ctx-step"><div class="ctx-step-num">3</div><div>Add recipients and any <strong style="color:var(--white)">data variables</strong> your template expects.</div></div>
+        <div class="ctx-step"><div class="ctx-step-num">4</div><div>Click <strong style="color:var(--white)">Send Smart Email</strong> and check the response.</div></div>
+      </div>
+    </div>
+
+    <div class="sidebar-context" id="ctx-classic">
+      <div class="ctx-title">✉️ Classic API</div>
+      <div class="ctx-body">
+        <div class="ctx-step"><div class="ctx-step-num">1</div><div>Enter your <strong style="color:var(--white)">API key</strong> above.</div></div>
+        <div class="ctx-step"><div class="ctx-step-num">2</div><div>Fill in <strong style="color:var(--white)">To</strong> and <strong style="color:var(--white)">From</strong> addresses, subject and HTML body.</div></div>
+        <div class="ctx-step"><div class="ctx-step-num">3</div><div>Adjust tracking and consent options as needed.</div></div>
+        <div class="ctx-step"><div class="ctx-step-num">4</div><div>Click <strong style="color:var(--white)">Send via API</strong> and review the response.</div></div>
+      </div>
+    </div>
+
+    <div class="sidebar-context" id="ctx-smtp">
+      <div class="ctx-title">📡 Classic SMTP</div>
+      <div class="ctx-body">
+        <div class="ctx-step"><div class="ctx-step-num">1</div><div>Find your <strong style="color:var(--white)">SMTP Token</strong> in CM under Transactional → SMTP Settings.</div></div>
+        <div class="ctx-step"><div class="ctx-step-num">2</div><div>Paste the token above — it's used as both username and password.</div></div>
+        <div class="ctx-step"><div class="ctx-step-num">3</div><div>Select a <strong style="color:var(--white)">port</strong> (try 2525 first) and fill in recipients and content.</div></div>
+        <div class="ctx-step"><div class="ctx-step-num">4</div><div>Use <strong style="color:var(--white)">Diagnose Connection</strong> if sends are timing out.</div></div>
+      </div>
+    </div>
+
     <div class="sidebar-footer">
       api.createsend.com<br>
       smtp.api.createsend.com
@@ -422,12 +473,7 @@
 
     <!-- ── SMART EMAIL ────────────────────── -->
     <div class="panel active" id="panel-smart">
-      <div class="topbar">
-        <div>
-          <div class="topbar-title">Smart Transactional Email</div>
-          <div class="topbar-sub">Send using a pre-built template from your CM account</div>
-        </div>
-      </div>
+
       <div class="content">
 
         <div class="card card-auth">
@@ -522,12 +568,7 @@
 
     <!-- ── CLASSIC API ────────────────────── -->
     <div class="panel" id="panel-classic">
-      <div class="topbar">
-        <div>
-          <div class="topbar-title">Classic Transactional — API</div>
-          <div class="topbar-sub">Compose and send a fully custom email via the CM REST API</div>
-        </div>
-      </div>
+
       <div class="content">
 
         <div class="card card-auth">
@@ -601,12 +642,7 @@ If you received this, the integration is working correctly.</textarea></div></di
 
     <!-- ── CLASSIC SMTP ───────────────────── -->
     <div class="panel" id="panel-smtp">
-      <div class="topbar">
-        <div>
-          <div class="topbar-title">Classic Transactional — SMTP</div>
-          <div class="topbar-sub">Send via Campaign Monitor's SMTP relay · connection made server-side</div>
-        </div>
-      </div>
+
       <div class="content">
 
         <div class="card card-auth">
@@ -701,7 +737,10 @@ const parseList = s => s?.trim() ? s.split(',').map(x=>x.trim()).filter(Boolean)
 function showTab(t) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  $('panel-'+t).classList.add('active'); $('tab-'+t).classList.add('active');
+  document.querySelectorAll('.sidebar-context').forEach(c => c.classList.remove('active'));
+  $('panel-'+t).classList.add('active');
+  $('tab-'+t).classList.add('active');
+  const ctx = $('ctx-'+t); if (ctx) ctx.classList.add('active');
 }
 function syncApiKey(src) {
   const v=src.value; $('apiKey').value=v; $('apiKeyClassic').value=v;
