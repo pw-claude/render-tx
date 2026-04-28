@@ -383,6 +383,7 @@ If you received this, the SMTP integration is working correctly.</textarea>
         <div class="btn-group">
           <button class="btn btn-primary" onclick="sendSmtp()"><span id="s7"></span> 📡 Send via SMTP</button>
           <button class="btn btn-secondary" onclick="clearSmtp()">Clear</button>
+          <button class="btn btn-secondary" onclick="runDiag()" id="diagBtn">🔬 Diagnose Connection</button>
         </div>
         <div class="response-panel" id="smtpResp">
           <div class="response-header"><span class="response-label">Response</span><span class="response-status" id="smtpRespStatus"></span></div>
@@ -444,7 +445,7 @@ function showResp(panelId, statusId, bodyId, ok, code, data) {
   $(statusId).textContent = code;
   $(statusId).className = 'response-status ' + (ok ? 'status-ok' : 'status-err');
   $(bodyId).className = 'response-body' + (ok ? '' : ' error-body');
-  $(bodyId).textContent = JSON.stringify(data, null, 2);
+  $(bodyId).textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
 }
 
 // ── API proxy ─────────────────────────────────────────────────────────────────
@@ -619,3 +620,30 @@ function clearSmtp() {
 </script>
 </body>
 </html>
+<script>
+// ── SMTP Diagnostics ─────────────────────────────────────────────────────────
+async function runDiag() {
+  const btn = $('diagBtn');
+  btn.disabled = true;
+  btn.textContent = '🔬 Running…';
+  toast('Running connection diagnostics…', 'success');
+  try {
+    const res  = await fetch('/api/diag');
+    const data = await res.json();
+    const dnsLine = data.dns?.ok
+      ? '✅ DNS OK — ' + (data.dns.addresses || []).join(', ')
+      : '❌ DNS FAILED — ' + data.dns?.error;
+    const portLines = (data.ports || []).map(p =>
+      (p.ok ? '✅' : '❌') + ' Port ' + p.port + ': ' +
+      (p.ok ? 'OPEN (' + p.ms + 'ms)' : p.error + ' [' + p.code + ']')
+    ).join('\n');
+    const summary = '=== CM SMTP Diagnostic Report ===\nHost: ' + data.host + '\n\n' + dnsLine + '\n\n' + portLines;
+    showResp('smtpResp', 'smtpRespStatus', 'smtpRespBody', res.ok, res.status, summary);
+    toast(res.ok ? 'A port is open — SMTP should work!' : 'All ports blocked — see report', res.ok ? 'success' : 'error');
+  } catch(e) {
+    toast('Diagnostics failed: ' + e.message, 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = '🔬 Diagnose Connection';
+}
+</script>
