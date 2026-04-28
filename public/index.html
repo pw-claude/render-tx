@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CM Transactional Tester</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --surface2: #1c2330;
+    --border: #30363d; --border-accent: #444c56;
+    --text: #e6edf3; --text-muted: #8b949e; --text-dim: #484f58;
+    --accent: #f78166; --accent2: #79c0ff; --accent3: #56d364;
+    --accent4: #d29922; --accent5: #bc8cff; --danger: #f85149;
+    --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; min-height: 100vh; line-height: 1.6; }
+
+  /* Header */
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 16px; height: 56px; position: sticky; top: 0; z-index: 100; }
+  .header-logo { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-weight: 600; font-size: 15px; color: var(--text); }
+  .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+  .header-badge { font-family: var(--mono); font-size: 10px; background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; border-radius: 3px; letter-spacing: 0.5px; text-transform: uppercase; }
+
+  /* Credential bar */
+  .cred-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-height: 53px; }
+  .cred-bar label { font-family: var(--mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; white-space: nowrap; }
+  .cred-input-wrap { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 280px; max-width: 560px; }
+  .cred-input { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 6px 10px; border-radius: 4px; outline: none; transition: border-color 0.15s; }
+  .cred-input:focus { border-color: var(--accent2); }
+  .cred-input::placeholder { color: var(--text-dim); }
+  .status-indicator { display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); flex-shrink: 0; }
+  .status-dot.connected { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+
+  /* Layout */
+  .app-layout { display: flex; height: calc(100vh - 109px); }
+  .sidebar { width: 200px; background: var(--surface); border-right: 1px solid var(--border); padding: 16px 0; flex-shrink: 0; }
+  .sidebar-section { padding: 0 12px 16px; }
+  .sidebar-label { font-family: var(--mono); font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; padding: 0 4px 8px; }
+  .tab-btn { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 10px; background: none; border: none; border-radius: 6px; color: var(--text-muted); font-family: var(--sans); font-size: 13px; cursor: pointer; text-align: left; transition: all 0.15s; margin-bottom: 2px; }
+  .tab-btn:hover { background: var(--surface2); color: var(--text); }
+  .tab-btn.active { background: rgba(247,129,102,0.12); color: var(--accent); }
+
+  .main-panel { flex: 1; overflow-y: auto; padding: 28px 32px; max-width: 900px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .panel-title { font-family: var(--mono); font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .panel-subtitle { color: var(--text-muted); font-size: 13px; margin-bottom: 28px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .card-title { font-family: var(--mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .card-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-row.single { grid-template-columns: 1fr; }
+  .form-row.thirds { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-label { font-family: var(--mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; }
+  .form-label span { color: var(--accent); font-size: 9px; margin-left: 4px; vertical-align: super; }
+  .form-input, .form-textarea, .form-select { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 13px; padding: 8px 10px; border-radius: 5px; outline: none; transition: border-color 0.15s; width: 100%; }
+  .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--accent2); background: var(--surface2); }
+  .form-textarea { font-family: var(--mono); font-size: 12px; resize: vertical; min-height: 100px; }
+  .form-select { cursor: pointer; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b949e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+  .form-select option { background: var(--surface); }
+  .form-hint { font-size: 11px; color: var(--text-dim); font-style: italic; }
+
+  .btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 6px; border: none; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #f96d52; transform: translateY(-1px); }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-ghost { background: none; color: var(--accent2); padding: 6px 10px; font-size: 12px; border: 1px solid transparent; }
+  .btn-ghost:hover { border-color: var(--accent2); background: rgba(121,192,255,0.08); }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-group { display: flex; gap: 8px; margin-top: 20px; align-items: center; flex-wrap: wrap; }
+
+  .smart-email-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; max-height: 220px; overflow-y: auto; }
+  .smart-email-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+  .smart-email-item:hover { border-color: var(--accent2); }
+  .smart-email-item.selected { border-color: var(--accent); background: rgba(247,129,102,0.06); }
+  .smart-email-item-name { font-size: 13px; font-weight: 500; }
+  .smart-email-item-id { font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .badge { font-family: var(--mono); font-size: 10px; padding: 2px 7px; border-radius: 3px; }
+  .badge-active { background: rgba(86,211,100,0.15); color: var(--accent3); }
+  .badge-draft { background: rgba(210,153,34,0.15); color: var(--accent4); }
+
+  .var-row { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
+  .var-row .form-input { flex: 1; font-family: var(--mono); font-size: 12px; }
+  .var-remove { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 18px; padding: 2px 6px; transition: color 0.15s; }
+  .var-remove:hover { color: var(--danger); }
+
+  .response-panel { margin-top: 20px; display: none; }
+  .response-panel.visible { display: block; }
+  .response-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .response-status { font-family: var(--mono); font-size: 11px; padding: 3px 8px; border-radius: 3px; font-weight: 600; }
+  .status-ok { background: rgba(86,211,100,0.15); color: var(--accent3); border: 1px solid rgba(86,211,100,0.3); }
+  .status-err { background: rgba(248,81,73,0.15); color: var(--danger); border: 1px solid rgba(248,81,73,0.3); }
+  .response-label { font-family: var(--mono); font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; }
+  .response-body { background: #0a0e13; border: 1px solid var(--border); border-radius: 6px; padding: 16px; font-family: var(--mono); font-size: 12px; color: #a8d8a8; white-space: pre-wrap; word-break: break-word; max-height: 320px; overflow-y: auto; line-height: 1.7; }
+  .response-body.error-body { color: #f8817a; }
+
+  .smtp-ref { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .smtp-ref-item { display: flex; flex-direction: column; gap: 3px; }
+  .smtp-ref-key { font-family: var(--mono); font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.6px; }
+  .smtp-ref-val { font-family: var(--mono); font-size: 12px; color: var(--accent2); }
+
+  .info-box { background: rgba(121,192,255,0.07); border: 1px solid rgba(121,192,255,0.2); border-radius: 6px; padding: 12px 14px; font-size: 12px; color: var(--accent2); margin-bottom: 16px; display: flex; gap: 8px; align-items: flex-start; }
+
+  .spinner { width: 13px; height: 13px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--text-dim); font-size: 13px; }
+  .empty-icon { font-size: 32px; margin-bottom: 10px; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 12px 18px; border-radius: 8px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 999; transform: translateY(60px); opacity: 0; transition: all 0.25s ease; max-width: 340px; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-left: 3px solid var(--accent3); }
+  .toast.error { border-left: 3px solid var(--danger); }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo"><div class="logo-dot"></div> CM Transactional Tester</div>
+  <div class="header-badge">Support Tool</div>
+</div>
+
+<!-- Credential bar — content swaps depending on active tab -->
+<div class="cred-bar" id="credBar">
+  <!-- API Key (shown for Smart + Classic API) -->
+  <div id="credApiKey" style="display:flex;align-items:center;gap:12px;flex:1;flex-wrap:wrap;">
+    <label>API Key</label>
+    <div class="cred-input-wrap">
+      <input type="password" class="cred-input" id="apiKey" placeholder="Paste Campaign Monitor API key…" oninput="updateStatus('api')">
+      <button class="btn btn-secondary btn-sm" onclick="toggleVis('apiKey')" title="Show/hide">👁</button>
+    </div>
+    <div class="status-indicator">
+      <div class="status-dot" id="apiStatusDot"></div>
+      <span id="apiStatusText" style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">No key set</span>
+    </div>
+  </div>
+  <!-- SMTP Token (shown for Classic SMTP) -->
+  <div id="credSmtpToken" style="display:none;align-items:center;gap:12px;flex:1;flex-wrap:wrap;">
+    <label>SMTP Token</label>
+    <div class="cred-input-wrap">
+      <input type="password" class="cred-input" id="smtpToken" placeholder="Paste Campaign Monitor SMTP Token…" oninput="updateStatus('smtp')">
+      <button class="btn btn-secondary btn-sm" onclick="toggleVis('smtpToken')" title="Show/hide">👁</button>
+    </div>
+    <div class="status-indicator">
+      <div class="status-dot" id="smtpStatusDot"></div>
+      <span id="smtpStatusText" style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">No token set</span>
+    </div>
+  </div>
+</div>
+
+<div class="app-layout">
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Send</div>
+      <button class="tab-btn active" onclick="showTab('smart')" id="tab-smart"><span>⚡</span> Smart Email</button>
+      <button class="tab-btn" onclick="showTab('classic')" id="tab-classic"><span>✉️</span> Classic API</button>
+      <button class="tab-btn" onclick="showTab('smtp')" id="tab-smtp"><span>📡</span> Classic SMTP</button>
+    </div>
+  </div>
+
+  <div class="main-panel">
+
+    <!-- ══════════════════════════════════
+         SMART EMAIL
+    ══════════════════════════════════ -->
+    <div class="panel active" id="panel-smart">
+      <div class="panel-title">⚡ Smart Transactional Email</div>
+      <div class="panel-subtitle">Load smart email templates from CM, pick one, supply data variables and send</div>
+
+      <div class="card">
+        <div class="card-title">1 · Load Templates</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Client ID</label>
+            <input type="text" class="form-input" id="smartClientId" placeholder="Required for agency / account keys">
+          </div>
+          <div class="form-group" style="justify-content:flex-end">
+            <label class="form-label">&nbsp;</label>
+            <button class="btn btn-secondary" onclick="loadSmartEmails()"><span id="s1"></span> Load Smart Emails</button>
+          </div>
+        </div>
+        <div id="smartEmailList" class="smart-email-list" style="display:none"></div>
+      </div>
+
+      <div class="card" id="smartSendCard" style="display:none">
+        <div class="card-title">2 · Send</div>
+        <div class="info-box">⚡ Sending: <strong id="selectedSmartName" style="margin-left:6px"></strong></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">To <span>*</span></label>
+            <input type="text" class="form-input" id="smartTo" placeholder="recipient@example.com">
+            <span class="form-hint">Comma-separated, max 25 across To/CC/BCC</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">CC</label>
+            <input type="text" class="form-input" id="smartCc" placeholder="cc@example.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">BCC</label>
+            <input type="text" class="form-input" id="smartBcc" placeholder="bcc@example.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Consent to Track <span>*</span></label>
+            <select class="form-select" id="smartConsent">
+              <option value="Yes">Yes — allow tracking</option>
+              <option value="No">No — disable tracking</option>
+              <option value="Unchanged">Unchanged</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label class="form-label" style="display:flex;align-items:center;justify-content:space-between">
+            Data Variables <button class="btn btn-ghost" onclick="addVar()">+ Add Variable</button>
+          </label>
+          <div id="varsContainer"></div>
+          <span class="form-hint">Key/value pairs merged into your template (e.g. username, order_id)</span>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="sendSmart()"><span id="s2"></span> ⚡ Send Smart Email</button>
+          <button class="btn btn-secondary" onclick="clearSmart()">Clear</button>
+        </div>
+        <div class="response-panel" id="smartResp">
+          <div class="response-header"><span class="response-label">Response</span><span class="response-status" id="smartRespStatus"></span></div>
+          <pre class="response-body" id="smartRespBody"></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         CLASSIC API
+    ══════════════════════════════════ -->
+    <div class="panel" id="panel-classic">
+      <div class="panel-title">✉️ Classic Transactional — API</div>
+      <div class="panel-subtitle">Send a fully custom email via the Campaign Monitor REST API</div>
+
+      <div class="card">
+        <div class="card-title">Recipients</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">To <span>*</span></label>
+            <input type="text" class="form-input" id="cTo" placeholder="recipient@example.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">From <span>*</span></label>
+            <input type="text" class="form-input" id="cFrom" placeholder="Sender Name &lt;sender@yourdomain.com&gt;">
+          </div>
+        </div>
+        <div class="form-row thirds">
+          <div class="form-group"><label class="form-label">CC</label><input type="text" class="form-input" id="cCc" placeholder="cc@example.com"></div>
+          <div class="form-group"><label class="form-label">BCC</label><input type="text" class="form-input" id="cBcc" placeholder="bcc@example.com"></div>
+          <div class="form-group"><label class="form-label">Reply-To</label><input type="text" class="form-input" id="cReplyTo" placeholder="replyto@example.com"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Content</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Subject <span>*</span></label>
+            <input type="text" class="form-input" id="cSubject" value="Test transactional email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Group</label>
+            <input type="text" class="form-input" id="cGroup" placeholder="e.g. Password Reset (for reporting)">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label class="form-label">HTML Body <span>*</span></label>
+            <textarea class="form-textarea" id="cHtml" rows="7">&lt;h1&gt;Test Email&lt;/h1&gt;
+&lt;p&gt;This is a test transactional email sent via the Campaign Monitor Classic API.&lt;/p&gt;
+&lt;p&gt;If you received this, the integration is working correctly.&lt;/p&gt;</textarea>
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label class="form-label">Plain Text Body</label>
+            <textarea class="form-textarea" id="cText" rows="3">Test Email
+
+This is a test transactional email sent via the Campaign Monitor Classic API.
+If you received this, the integration is working correctly.</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Options</div>
+        <div class="form-row thirds">
+          <div class="form-group">
+            <label class="form-label">Consent to Track <span>*</span></label>
+            <select class="form-select" id="cConsent"><option value="Yes">Yes — allow tracking</option><option value="No">No — disable tracking</option><option value="Unchanged">Unchanged</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Track Opens</label><select class="form-select" id="cTrackOpens"><option value="true">Yes</option><option value="false">No</option></select></div>
+          <div class="form-group"><label class="form-label">Track Clicks</label><select class="form-select" id="cTrackClicks"><option value="true">Yes</option><option value="false">No</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Client ID</label><input type="text" class="form-input" id="cClientId" placeholder="Required for agency / account keys"></div>
+          <div class="form-group"><label class="form-label">Inline CSS</label><select class="form-select" id="cInlineCss"><option value="true">Yes (recommended)</option><option value="false">No</option></select></div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="sendClassic()"><span id="s3"></span> ✉️ Send via API</button>
+          <button class="btn btn-secondary" onclick="clearClassic()">Clear</button>
+        </div>
+        <div class="response-panel" id="classicResp">
+          <div class="response-header"><span class="response-label">Response</span><span class="response-status" id="classicRespStatus"></span></div>
+          <pre class="response-body" id="classicRespBody"></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         CLASSIC SMTP
+    ══════════════════════════════════ -->
+    <div class="panel" id="panel-smtp">
+      <div class="panel-title">📡 Classic Transactional — SMTP</div>
+      <div class="panel-subtitle">Send via Campaign Monitor's SMTP relay using your SMTP Token. The SMTP connection is made server-side — no firewall issues.</div>
+
+      <div class="smtp-ref">
+        <div class="smtp-ref-item"><div class="smtp-ref-key">SMTP Host</div><div class="smtp-ref-val">smtp.transactional.createsend.com</div></div>
+        <div class="smtp-ref-item"><div class="smtp-ref-key">Port</div><div class="smtp-ref-val">587 (STARTTLS)</div></div>
+        <div class="smtp-ref-item"><div class="smtp-ref-key">Username</div><div class="smtp-ref-val">SMTP Token</div></div>
+        <div class="smtp-ref-item"><div class="smtp-ref-key">Password</div><div class="smtp-ref-val">SMTP Token</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Recipients</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">To <span>*</span></label>
+            <input type="text" class="form-input" id="smTo" placeholder="recipient@example.com">
+            <span class="form-hint">Comma-separated</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">From <span>*</span></label>
+            <input type="text" class="form-input" id="smFrom" placeholder="Sender Name &lt;sender@yourdomain.com&gt;">
+          </div>
+        </div>
+        <div class="form-row thirds">
+          <div class="form-group"><label class="form-label">CC</label><input type="text" class="form-input" id="smCc" placeholder="cc@example.com"></div>
+          <div class="form-group"><label class="form-label">BCC</label><input type="text" class="form-input" id="smBcc" placeholder="bcc@example.com"></div>
+          <div class="form-group"><label class="form-label">Reply-To</label><input type="text" class="form-input" id="smReplyTo" placeholder="replyto@example.com"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Content</div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label class="form-label">Subject <span>*</span></label>
+            <input type="text" class="form-input" id="smSubject" value="Test SMTP transactional email">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label class="form-label">HTML Body <span>*</span></label>
+            <textarea class="form-textarea" id="smHtml" rows="7">&lt;h1&gt;Test SMTP Email&lt;/h1&gt;
+&lt;p&gt;This is a test transactional email sent via the Campaign Monitor Classic SMTP relay.&lt;/p&gt;
+&lt;p&gt;If you received this, the SMTP integration is working correctly.&lt;/p&gt;</textarea>
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label class="form-label">Plain Text Body</label>
+            <textarea class="form-textarea" id="smText" rows="3">Test SMTP Email
+
+This is a test transactional email sent via the Campaign Monitor Classic SMTP relay.
+If you received this, the SMTP integration is working correctly.</textarea>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="sendSmtp()"><span id="s7"></span> 📡 Send via SMTP</button>
+          <button class="btn btn-secondary" onclick="clearSmtp()">Clear</button>
+        </div>
+        <div class="response-panel" id="smtpResp">
+          <div class="response-header"><span class="response-label">Response</span><span class="response-status" id="smtpRespStatus"></span></div>
+          <pre class="response-body" id="smtpRespBody"></pre>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let selSmartId = null, varN = 0;
+const $ = id => document.getElementById(id);
+const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const parseList = s => s?.trim() ? s.split(',').map(x=>x.trim()).filter(Boolean) : null;
+
+// ── Credential bar switching ──────────────────────────────────────────────────
+function showTab(t) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  $('panel-' + t).classList.add('active');
+  $('tab-' + t).classList.add('active');
+
+  const isSmtp = t === 'smtp';
+  $('credApiKey').style.display  = isSmtp ? 'none'  : 'flex';
+  $('credSmtpToken').style.display = isSmtp ? 'flex' : 'none';
+}
+
+function updateStatus(type) {
+  if (type === 'api') {
+    const k = $('apiKey').value.trim();
+    $('apiStatusDot').className = 'status-dot' + (k ? ' connected' : '');
+    $('apiStatusText').textContent = k ? 'Key ready' : 'No key set';
+    $('apiStatusText').style.color = k ? 'var(--accent3)' : 'var(--text-dim)';
+  } else {
+    const k = $('smtpToken').value.trim();
+    $('smtpStatusDot').className = 'status-dot' + (k ? ' connected' : '');
+    $('smtpStatusText').textContent = k ? 'Token ready' : 'No token set';
+    $('smtpStatusText').style.color = k ? 'var(--accent3)' : 'var(--text-dim)';
+  }
+}
+
+function toggleVis(id) { const i=$(id); i.type = i.type==='password'?'text':'password'; }
+
+function toast(msg, type='success') {
+  const t = $('toast');
+  t.textContent = (type==='success'?'✓ ':'✗ ') + msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function spin(id, on) { const el=$(id); if(el) el.innerHTML = on ? '<span class="spinner"></span>' : ''; }
+
+function showResp(panelId, statusId, bodyId, ok, code, data) {
+  $(panelId).classList.add('visible');
+  $(statusId).textContent = code;
+  $(statusId).className = 'response-status ' + (ok ? 'status-ok' : 'status-err');
+  $(bodyId).className = 'response-body' + (ok ? '' : ' error-body');
+  $(bodyId).textContent = JSON.stringify(data, null, 2);
+}
+
+// ── API proxy ─────────────────────────────────────────────────────────────────
+async function api(method, path, body=null) {
+  const apiKey = $('apiKey').value.trim();
+  if (!apiKey) { toast('Enter your API key first', 'error'); throw new Error('no key'); }
+  const res = await fetch('/api/proxy', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ method, path, apiKey, body })
+  });
+  let data; try { data = await res.json(); } catch { data = {}; }
+  return { ok: res.ok, status: res.status, data };
+}
+
+// ── SMTP proxy ────────────────────────────────────────────────────────────────
+async function smtpApi(payload) {
+  const smtpToken = $('smtpToken').value.trim();
+  if (!smtpToken) { toast('Enter your SMTP Token first', 'error'); throw new Error('no token'); }
+  const res = await fetch('/api/smtp', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ smtpToken, ...payload })
+  });
+  let data; try { data = await res.json(); } catch { data = {}; }
+  return { ok: res.ok, status: res.status, data };
+}
+
+// ── Smart Email ───────────────────────────────────────────────────────────────
+async function loadSmartEmails() {
+  spin('s1', true);
+  const cid = $('smartClientId').value.trim();
+  let path = '/api/v3.3/transactional/smartEmail?status=all';
+  if (cid) path += '&clientID=' + encodeURIComponent(cid);
+  try {
+    const {ok, data} = await api('GET', path);
+    const el = $('smartEmailList'); el.style.display = 'flex';
+    if (!ok || !Array.isArray(data) || !data.length) {
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>No smart emails found. Check API key and Client ID.</div>';
+      toast('No smart emails found', 'error');
+    } else {
+      el.innerHTML = data.map(e => `
+        <div class="smart-email-item" onclick="selSmart('${esc(e.ID)}','${esc(e.Name)}',this)">
+          <div><div class="smart-email-item-name">${esc(e.Name)}</div><div class="smart-email-item-id">${esc(e.ID)}</div></div>
+          <span class="badge ${e.Status==='Active'?'badge-active':'badge-draft'}">${esc(e.Status)}</span>
+        </div>`).join('');
+      toast(`Loaded ${data.length} smart email${data.length!==1?'s':''}`);
+    }
+  } catch(e) { if(e.message!=='no key') toast('Error loading smart emails','error'); }
+  spin('s1', false);
+}
+
+function selSmart(id, name, el) {
+  selSmartId = id;
+  document.querySelectorAll('.smart-email-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+  $('selectedSmartName').textContent = name;
+  $('smartSendCard').style.display = 'block';
+  $('smartSendCard').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function addVar(k='', v='') {
+  const c = $('varsContainer'), id = ++varN, row = document.createElement('div');
+  row.className = 'var-row'; row.id = 'vr-' + id;
+  row.innerHTML = `<input type="text" class="form-input" placeholder="variable_name" value="${esc(k)}" id="vk-${id}">
+    <input type="text" class="form-input" placeholder="value" value="${esc(v)}" id="vv-${id}">
+    <button class="var-remove" onclick="document.getElementById('vr-${id}').remove()">×</button>`;
+  c.appendChild(row);
+}
+
+function collectVars() {
+  const d = {};
+  document.querySelectorAll('.var-row').forEach(r => {
+    const id = r.id.replace('vr-','');
+    const k = $('vk-'+id)?.value.trim(), v = $('vv-'+id)?.value;
+    if (k) d[k] = v;
+  });
+  return Object.keys(d).length ? d : undefined;
+}
+
+async function sendSmart() {
+  if (!selSmartId) { toast('Select a smart email first','error'); return; }
+  const to = parseList($('smartTo').value);
+  if (!to?.length) { toast('At least one recipient required','error'); return; }
+  spin('s2', true);
+  const payload = { To:to, ConsentToTrack: $('smartConsent').value };
+  const cc = parseList($('smartCc').value), bcc = parseList($('smartBcc').value);
+  if (cc) payload.CC = cc; if (bcc) payload.BCC = bcc;
+  const vars = collectVars(); if (vars) payload.Data = vars;
+  try {
+    const {ok,status,data} = await api('POST', `/api/v3.3/transactional/smartEmail/${selSmartId}/send`, payload);
+    showResp('smartResp','smartRespStatus','smartRespBody', ok, status, data);
+    toast(ok ? 'Smart email sent!' : 'Send failed — see response', ok?'success':'error');
+  } catch(e) { if(e.message!=='no key') toast('Request failed','error'); }
+  spin('s2', false);
+}
+
+function clearSmart() {
+  ['smartTo','smartCc','smartBcc'].forEach(id => $(id).value = '');
+  $('varsContainer').innerHTML = '';
+  $('smartResp').classList.remove('visible');
+}
+
+// ── Classic API ───────────────────────────────────────────────────────────────
+async function sendClassic() {
+  const to=parseList($('cTo').value), from=$('cFrom').value.trim();
+  const subj=$('cSubject').value.trim(), html=$('cHtml').value.trim();
+  if (!to?.length) { toast('Recipient required','error'); return; }
+  if (!from) { toast('From required','error'); return; }
+  if (!subj) { toast('Subject required','error'); return; }
+  if (!html) { toast('HTML body required','error'); return; }
+  spin('s3', true);
+  const payload = {
+    To:to, From:from, Subject:subj, Html:html,
+    ConsentToTrack: $('cConsent').value,
+    TrackOpens: $('cTrackOpens').value==='true',
+    TrackClicks: $('cTrackClicks').value==='true',
+    InlineCSS: $('cInlineCss').value==='true'
+  };
+  const cc=parseList($('cCc').value), bcc=parseList($('cBcc').value);
+  const text=$('cText').value.trim(), replyTo=$('cReplyTo').value.trim();
+  const group=$('cGroup').value.trim(), cid=$('cClientId').value.trim();
+  if (cc) payload.CC=cc; if (bcc) payload.BCC=bcc;
+  if (text) payload.Text=text; if (replyTo) payload.ReplyTo=replyTo;
+  if (group) payload.Group=group;
+  let path = '/api/v3.3/transactional/classicEmail/send';
+  if (cid) path += '?clientID=' + encodeURIComponent(cid);
+  try {
+    const {ok,status,data} = await api('POST', path, payload);
+    showResp('classicResp','classicRespStatus','classicRespBody', ok, status, data);
+    toast(ok ? 'Classic email sent!' : 'Send failed — see response', ok?'success':'error');
+  } catch(e) { if(e.message!=='no key') toast('Request failed','error'); }
+  spin('s3', false);
+}
+
+function clearClassic() {
+  ['cTo','cFrom','cCc','cBcc','cReplyTo','cGroup','cClientId'].forEach(id => $(id).value = '');
+  $('cSubject').value = 'Test transactional email';
+  $('cHtml').value = '<h1>Test Email</h1>\n<p>This is a test transactional email sent via the Campaign Monitor Classic API.</p>\n<p>If you received this, the integration is working correctly.</p>';
+  $('cText').value = 'Test Email\n\nThis is a test transactional email sent via the Campaign Monitor Classic API.\nIf you received this, the integration is working correctly.';
+  $('classicResp').classList.remove('visible');
+}
+
+// ── Classic SMTP ──────────────────────────────────────────────────────────────
+async function sendSmtp() {
+  const to=parseList($('smTo').value), from=$('smFrom').value.trim();
+  const subj=$('smSubject').value.trim(), html=$('smHtml').value.trim(), text=$('smText').value.trim();
+  if (!to?.length) { toast('Recipient required','error'); return; }
+  if (!from) { toast('From required','error'); return; }
+  if (!subj) { toast('Subject required','error'); return; }
+  if (!html && !text) { toast('HTML or text body required','error'); return; }
+  spin('s7', true);
+  const payload = { from, to, subject:subj };
+  const cc=parseList($('smCc').value), bcc=parseList($('smBcc').value), replyTo=$('smReplyTo').value.trim();
+  if (cc) payload.cc=cc; if (bcc) payload.bcc=bcc;
+  if (replyTo) payload.replyTo=replyTo;
+  if (html) payload.html=html;
+  if (text) payload.text=text;
+  try {
+    const {ok,status,data} = await smtpApi(payload);
+    showResp('smtpResp','smtpRespStatus','smtpRespBody', ok, status, data);
+    toast(ok ? 'SMTP email sent!' : 'SMTP send failed — see response', ok?'success':'error');
+  } catch(e) { if(e.message!=='no token') toast('Request failed','error'); }
+  spin('s7', false);
+}
+
+function clearSmtp() {
+  ['smTo','smFrom','smCc','smBcc','smReplyTo'].forEach(id => $(id).value = '');
+  $('smSubject').value = 'Test SMTP transactional email';
+  $('smHtml').value = '<h1>Test SMTP Email</h1>\n<p>This is a test transactional email sent via the Campaign Monitor Classic SMTP relay.</p>\n<p>If you received this, the SMTP integration is working correctly.</p>';
+  $('smText').value = 'Test SMTP Email\n\nThis is a test transactional email sent via the Campaign Monitor Classic SMTP relay.\nIf you received this, the SMTP integration is working correctly.';
+  $('smtpResp').classList.remove('visible');
+}
+</script>
+</body>
+</html>

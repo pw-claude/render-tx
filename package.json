@@ -1,0 +1,17 @@
+{
+  "name": "cm-transactional-tester",
+  "version": "1.0.0",
+  "description": "Campaign Monitor Transactional Email Testing Tool",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.13",
+    "node-fetch": "^3.3.2"
+  }
+}
