@@ -4,7 +4,7 @@
 import dns from 'dns/promises';
 import net from 'net';
 
-const CM_HOST = 'smtp.transactional.createsend.com';
+const CM_HOST = 'smtp.api.createsend.com';
 const PORTS   = [2525, 465, 587, 25];
 
 function tcpProbe(host, port, timeoutMs = 8000) {

@@ -17,26 +17,13 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; min-height: 100vh; line-height: 1.6; }
 
-  /* Header */
   .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 16px; height: 56px; position: sticky; top: 0; z-index: 100; }
   .header-logo { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-weight: 600; font-size: 15px; color: var(--text); }
   .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: pulse 2s ease-in-out infinite; }
   @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
   .header-badge { font-family: var(--mono); font-size: 10px; background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); padding: 2px 8px; border-radius: 3px; letter-spacing: 0.5px; text-transform: uppercase; }
 
-  /* Credential bar */
-  .cred-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-height: 53px; }
-  .cred-bar label { font-family: var(--mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; white-space: nowrap; }
-  .cred-input-wrap { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 280px; max-width: 560px; }
-  .cred-input { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 6px 10px; border-radius: 4px; outline: none; transition: border-color 0.15s; }
-  .cred-input:focus { border-color: var(--accent2); }
-  .cred-input::placeholder { color: var(--text-dim); }
-  .status-indicator { display: flex; align-items: center; gap: 6px; }
-  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); flex-shrink: 0; }
-  .status-dot.connected { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
-
-  /* Layout */
-  .app-layout { display: flex; height: calc(100vh - 109px); }
+  .app-layout { display: flex; height: calc(100vh - 56px); }
   .sidebar { width: 200px; background: var(--surface); border-right: 1px solid var(--border); padding: 16px 0; flex-shrink: 0; }
   .sidebar-section { padding: 0 12px 16px; }
   .sidebar-label { font-family: var(--mono); font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; padding: 0 4px 8px; }
@@ -54,6 +41,15 @@
   .card-title { font-family: var(--mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
   .card-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
+  /* Credential card — slightly highlighted to stand out */
+  .card-cred { border-color: var(--border-accent); }
+  .cred-row { display: flex; align-items: center; gap: 10px; }
+  .cred-row .form-input { flex: 1; font-family: var(--mono); font-size: 12px; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); flex-shrink: 0; }
+  .status-dot.connected { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+  .status-text { font-family: var(--mono); font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+  .status-text.ok { color: var(--accent3); }
+
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
   .form-row.single { grid-template-columns: 1fr; }
   .form-row.thirds { grid-template-columns: 1fr 1fr 1fr; }
@@ -62,6 +58,7 @@
   .form-label span { color: var(--accent); font-size: 9px; margin-left: 4px; vertical-align: super; }
   .form-input, .form-textarea, .form-select { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--sans); font-size: 13px; padding: 8px 10px; border-radius: 5px; outline: none; transition: border-color 0.15s; width: 100%; }
   .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--accent2); background: var(--surface2); }
+  .form-input::placeholder, .form-textarea::placeholder { color: var(--text-dim); }
   .form-textarea { font-family: var(--mono); font-size: 12px; resize: vertical; min-height: 100px; }
   .form-select { cursor: pointer; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b949e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
   .form-select option { background: var(--surface); }
@@ -102,7 +99,7 @@
   .response-body { background: #0a0e13; border: 1px solid var(--border); border-radius: 6px; padding: 16px; font-family: var(--mono); font-size: 12px; color: #a8d8a8; white-space: pre-wrap; word-break: break-word; max-height: 320px; overflow-y: auto; line-height: 1.7; }
   .response-body.error-body { color: #f8817a; }
 
-  .smtp-ref { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .smtp-ref { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
   .smtp-ref-item { display: flex; flex-direction: column; gap: 3px; }
   .smtp-ref-key { font-family: var(--mono); font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.6px; }
   .smtp-ref-val { font-family: var(--mono); font-size: 12px; color: var(--accent2); }
@@ -131,34 +128,6 @@
   <div class="header-badge">Support Tool</div>
 </div>
 
-<!-- Credential bar — content swaps depending on active tab -->
-<div class="cred-bar" id="credBar">
-  <!-- API Key (shown for Smart + Classic API) -->
-  <div id="credApiKey" style="display:flex;align-items:center;gap:12px;flex:1;flex-wrap:wrap;">
-    <label>API Key</label>
-    <div class="cred-input-wrap">
-      <input type="password" class="cred-input" id="apiKey" placeholder="Paste Campaign Monitor API key…" oninput="updateStatus('api')">
-      <button class="btn btn-secondary btn-sm" onclick="toggleVis('apiKey')" title="Show/hide">👁</button>
-    </div>
-    <div class="status-indicator">
-      <div class="status-dot" id="apiStatusDot"></div>
-      <span id="apiStatusText" style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">No key set</span>
-    </div>
-  </div>
-  <!-- SMTP Token (shown for Classic SMTP) -->
-  <div id="credSmtpToken" style="display:none;align-items:center;gap:12px;flex:1;flex-wrap:wrap;">
-    <label>SMTP Token</label>
-    <div class="cred-input-wrap">
-      <input type="password" class="cred-input" id="smtpToken" placeholder="Paste Campaign Monitor SMTP Token…" oninput="updateStatus('smtp')">
-      <button class="btn btn-secondary btn-sm" onclick="toggleVis('smtpToken')" title="Show/hide">👁</button>
-    </div>
-    <div class="status-indicator">
-      <div class="status-dot" id="smtpStatusDot"></div>
-      <span id="smtpStatusText" style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">No token set</span>
-    </div>
-  </div>
-</div>
-
 <div class="app-layout">
   <div class="sidebar">
     <div class="sidebar-section">
@@ -177,6 +146,19 @@
     <div class="panel active" id="panel-smart">
       <div class="panel-title">⚡ Smart Transactional Email</div>
       <div class="panel-subtitle">Load smart email templates from CM, pick one, supply data variables and send</div>
+
+      <div class="card card-cred">
+        <div class="card-title">Authentication</div>
+        <div class="form-group">
+          <label class="form-label">API Key <span>*</span></label>
+          <div class="cred-row">
+            <input type="password" class="form-input" id="apiKey" placeholder="Paste your Campaign Monitor API key…" oninput="updateStatus('api')">
+            <button class="btn btn-secondary btn-sm" onclick="toggleVis('apiKey')" title="Show/hide">👁</button>
+            <div class="status-dot" id="apiStatusDot"></div>
+            <span class="status-text" id="apiStatusText">No key set</span>
+          </div>
+        </div>
+      </div>
 
       <div class="card">
         <div class="card-title">1 · Load Templates</div>
@@ -245,6 +227,19 @@
     <div class="panel" id="panel-classic">
       <div class="panel-title">✉️ Classic Transactional — API</div>
       <div class="panel-subtitle">Send a fully custom email via the Campaign Monitor REST API</div>
+
+      <div class="card card-cred">
+        <div class="card-title">Authentication</div>
+        <div class="form-group">
+          <label class="form-label">API Key <span>*</span></label>
+          <div class="cred-row">
+            <input type="password" class="form-input" id="apiKeyClassic" placeholder="Paste your Campaign Monitor API key…" oninput="syncApiKey(this)">
+            <button class="btn btn-secondary btn-sm" onclick="toggleVis('apiKeyClassic')" title="Show/hide">👁</button>
+            <div class="status-dot" id="apiStatusDotC"></div>
+            <span class="status-text" id="apiStatusTextC">No key set</span>
+          </div>
+        </div>
+      </div>
 
       <div class="card">
         <div class="card-title">Recipients</div>
@@ -326,13 +321,41 @@ If you received this, the integration is working correctly.</textarea>
     ══════════════════════════════════ -->
     <div class="panel" id="panel-smtp">
       <div class="panel-title">📡 Classic Transactional — SMTP</div>
-      <div class="panel-subtitle">Send via Campaign Monitor's SMTP relay using your SMTP Token. The SMTP connection is made server-side — no firewall issues.</div>
+      <div class="panel-subtitle">Send via Campaign Monitor's SMTP relay. The connection is made server-side — no firewall issues.</div>
 
-      <div class="smtp-ref">
-        <div class="smtp-ref-item"><div class="smtp-ref-key">SMTP Host</div><div class="smtp-ref-val">smtp.transactional.createsend.com</div></div>
-        <div class="smtp-ref-item"><div class="smtp-ref-key">Port</div><div class="smtp-ref-val">587 (STARTTLS)</div></div>
-        <div class="smtp-ref-item"><div class="smtp-ref-key">Username</div><div class="smtp-ref-val">SMTP Token</div></div>
-        <div class="smtp-ref-item"><div class="smtp-ref-key">Password</div><div class="smtp-ref-val">SMTP Token</div></div>
+      <div class="card card-cred">
+        <div class="card-title">Authentication</div>
+        <div class="form-group">
+          <label class="form-label">SMTP Token <span>*</span></label>
+          <div class="cred-row">
+            <input type="password" class="form-input" id="smtpToken" placeholder="Paste your Campaign Monitor SMTP Token…" oninput="updateStatus('smtp')">
+            <button class="btn btn-secondary btn-sm" onclick="toggleVis('smtpToken')" title="Show/hide">👁</button>
+            <div class="status-dot" id="smtpStatusDot"></div>
+            <span class="status-text" id="smtpStatusText">No token set</span>
+          </div>
+          <span class="form-hint">Found in your CM account under Transactional → SMTP Settings. Used as both username and password.</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Connection</div>
+        <div class="smtp-ref">
+          <div class="smtp-ref-item"><div class="smtp-ref-key">SMTP Host</div><div class="smtp-ref-val">smtp.api.createsend.com</div></div>
+          <div class="smtp-ref-item"><div class="smtp-ref-key">Username</div><div class="smtp-ref-val">SMTP Token</div></div>
+          <div class="smtp-ref-item"><div class="smtp-ref-key">Password</div><div class="smtp-ref-val">SMTP Token</div></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Port</label>
+            <select class="form-select" id="smtpPort">
+              <option value="auto">Auto — try 2525, 465, 587 in order</option>
+              <option value="2525">2525 (recommended — most widely unblocked)</option>
+              <option value="587">587 (STARTTLS)</option>
+              <option value="465">465 (SSL)</option>
+              <option value="25">25 (plain — often blocked)</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <div class="card">
@@ -403,30 +426,41 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const parseList = s => s?.trim() ? s.split(',').map(x=>x.trim()).filter(Boolean) : null;
 
-// ── Credential bar switching ──────────────────────────────────────────────────
 function showTab(t) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   $('panel-' + t).classList.add('active');
   $('tab-' + t).classList.add('active');
+}
 
-  const isSmtp = t === 'smtp';
-  $('credApiKey').style.display  = isSmtp ? 'none'  : 'flex';
-  $('credSmtpToken').style.display = isSmtp ? 'flex' : 'none';
+// API key is shared across Smart + Classic API tabs — keep both inputs in sync
+function syncApiKey(src) {
+  const val = src.value;
+  $('apiKey').value = val;
+  $('apiKeyClassic').value = val;
+  // update both status indicators
+  updateStatusEl('apiStatusDot', 'apiStatusText', val, 'Key');
+  updateStatusEl('apiStatusDotC', 'apiStatusTextC', val, 'Key');
 }
 
 function updateStatus(type) {
   if (type === 'api') {
-    const k = $('apiKey').value.trim();
-    $('apiStatusDot').className = 'status-dot' + (k ? ' connected' : '');
-    $('apiStatusText').textContent = k ? 'Key ready' : 'No key set';
-    $('apiStatusText').style.color = k ? 'var(--accent3)' : 'var(--text-dim)';
+    const val = $('apiKey').value;
+    $('apiKeyClassic').value = val;
+    updateStatusEl('apiStatusDot', 'apiStatusText', val, 'Key');
+    updateStatusEl('apiStatusDotC', 'apiStatusTextC', val, 'Key');
   } else {
-    const k = $('smtpToken').value.trim();
-    $('smtpStatusDot').className = 'status-dot' + (k ? ' connected' : '');
-    $('smtpStatusText').textContent = k ? 'Token ready' : 'No token set';
-    $('smtpStatusText').style.color = k ? 'var(--accent3)' : 'var(--text-dim)';
+    const val = $('smtpToken').value;
+    updateStatusEl('smtpStatusDot', 'smtpStatusText', val, 'Token');
   }
+}
+
+function updateStatusEl(dotId, textId, val, label) {
+  const dot  = $(dotId), txt = $(textId);
+  const ok   = val.trim().length > 0;
+  dot.className  = 'status-dot' + (ok ? ' connected' : '');
+  txt.textContent = ok ? label + ' ready' : 'No ' + label.toLowerCase() + ' set';
+  txt.className  = 'status-text' + (ok ? ' ok' : '');
 }
 
 function toggleVis(id) { const i=$(id); i.type = i.type==='password'?'text':'password'; }
@@ -596,7 +630,7 @@ async function sendSmtp() {
   if (!subj) { toast('Subject required','error'); return; }
   if (!html && !text) { toast('HTML or text body required','error'); return; }
   spin('s7', true);
-  const payload = { from, to, subject:subj };
+  const payload = { from, to, subject:subj, port: $('smtpPort').value };
   const cc=parseList($('smCc').value), bcc=parseList($('smBcc').value), replyTo=$('smReplyTo').value.trim();
   if (cc) payload.cc=cc; if (bcc) payload.bcc=bcc;
   if (replyTo) payload.replyTo=replyTo;
@@ -617,15 +651,11 @@ function clearSmtp() {
   $('smText').value = 'Test SMTP Email\n\nThis is a test transactional email sent via the Campaign Monitor Classic SMTP relay.\nIf you received this, the SMTP integration is working correctly.';
   $('smtpResp').classList.remove('visible');
 }
-</script>
-</body>
-</html>
-<script>
-// ── SMTP Diagnostics ─────────────────────────────────────────────────────────
+
+// ── SMTP Diagnostics ──────────────────────────────────────────────────────────
 async function runDiag() {
   const btn = $('diagBtn');
-  btn.disabled = true;
-  btn.textContent = '🔬 Running…';
+  btn.disabled = true; btn.textContent = '🔬 Running…';
   toast('Running connection diagnostics…', 'success');
   try {
     const res  = await fetch('/api/diag');
@@ -640,10 +670,9 @@ async function runDiag() {
     const summary = '=== CM SMTP Diagnostic Report ===\nHost: ' + data.host + '\n\n' + dnsLine + '\n\n' + portLines;
     showResp('smtpResp', 'smtpRespStatus', 'smtpRespBody', res.ok, res.status, summary);
     toast(res.ok ? 'A port is open — SMTP should work!' : 'All ports blocked — see report', res.ok ? 'success' : 'error');
-  } catch(e) {
-    toast('Diagnostics failed: ' + e.message, 'error');
-  }
-  btn.disabled = false;
-  btn.textContent = '🔬 Diagnose Connection';
+  } catch(e) { toast('Diagnostics failed: ' + e.message, 'error'); }
+  btn.disabled = false; btn.textContent = '🔬 Diagnose Connection';
 }
 </script>
+</body>
+</html>

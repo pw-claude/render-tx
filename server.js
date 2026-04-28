@@ -36,8 +36,9 @@ app.post('/api/proxy', async (req, res) => {
 });
 
 // ── POST /api/smtp ────────────────────────────────────────────────────────────
-const CM_SMTP_HOST = 'smtp.transactional.createsend.com';
-const SMTP_PORTS   = [
+// CM SMTP: username = SMTP Token, password = SMTP Token
+const CM_SMTP_HOST = 'smtp.api.createsend.com';
+const SMTP_PORTS = [
   { port: 2525, secure: false, requireTLS: true  },
   { port: 465,  secure: true,  requireTLS: false },
   { port: 587,  secure: false, requireTLS: true  },
@@ -45,20 +46,21 @@ const SMTP_PORTS   = [
 
 async function trySend(smtpToken, mailOptions, portConfig) {
   const transporter = nodemailer.createTransport({
-    host:               CM_SMTP_HOST,
-    port:               portConfig.port,
-    secure:             portConfig.secure,
-    requireTLS:         portConfig.requireTLS,
-    auth:               { user: smtpToken, pass: smtpToken },
-    connectionTimeout:  10000,
-    greetingTimeout:    10000,
-    socketTimeout:      15000,
+    host:              CM_SMTP_HOST,
+    port:              portConfig.port,
+    secure:            portConfig.secure,
+    requireTLS:        portConfig.requireTLS,
+    auth:              { user: smtpToken, pass: smtpToken },
+    connectionTimeout: 10000,
+    greetingTimeout:   10000,
+    socketTimeout:     15000,
   });
   return transporter.sendMail(mailOptions);
 }
 
 app.post('/api/smtp', async (req, res) => {
-  const { smtpToken, from, to, cc, bcc, replyTo, subject, html, text } = req.body || {};
+  const { smtpToken, from, to, cc, bcc, replyTo, subject, html, text, port } = req.body || {};
+
   if (!smtpToken)     return res.status(400).json({ error: 'smtpToken is required' });
   if (!from)          return res.status(400).json({ error: 'from is required' });
   if (!to)            return res.status(400).json({ error: 'to is required' });
@@ -73,34 +75,38 @@ app.post('/api/smtp', async (req, res) => {
   if (html)    mailOptions.html    = html;
   if (text)    mailOptions.text    = text;
 
+  // Honour explicit port selection, or try all in order if 'auto'
+  const specificPort  = port && port !== 'auto' ? parseInt(port, 10) : null;
+  const portsToTry    = specificPort
+    ? [SMTP_PORTS.find(p => p.port === specificPort) || { port: specificPort, secure: specificPort === 465, requireTLS: specificPort !== 465 }]
+    : SMTP_PORTS;
+
   const attempts = [];
-  for (const portConfig of SMTP_PORTS) {
+  for (const portConfig of portsToTry) {
     try {
       const info = await trySend(smtpToken, mailOptions, portConfig);
       return res.status(200).json({
         success: true, port_used: portConfig.port,
         messageId: info.messageId, accepted: info.accepted,
-        rejected: info.rejected, response: info.response,
+        rejected:  info.rejected,  response:  info.response,
       });
     } catch (err) {
       attempts.push({ port: portConfig.port, error: err.message, code: err.code || null });
       if (err.responseCode === 535 || err.code === 'EAUTH') {
-        return res.status(401).json({
-          error: 'SMTP authentication failed — check your SMTP Token', attempts,
-        });
+        return res.status(401).json({ error: 'SMTP authentication failed — check your SMTP Token', attempts });
       }
     }
   }
+
+  const triedPorts = portsToTry.map(p => p.port).join(', ');
   return res.status(502).json({
-    error: 'SMTP send failed on all ports (2525, 465, 587)',
-    detail: 'All connection attempts timed out.',
+    error:   `SMTP send failed on port${portsToTry.length > 1 ? 's' : ''} ${triedPorts}`,
+    detail:  'All connection attempts timed out.',
     attempts,
   });
 });
 
 // ── GET /api/diag ─────────────────────────────────────────────────────────────
-// Runs DNS + TCP probes against CM SMTP host and returns a report.
-// Hit this in your browser: https://your-render-url.onrender.com/api/diag
 app.get('/api/diag', diagHandler);
 
 // ── Catch-all SPA ─────────────────────────────────────────────────────────────
