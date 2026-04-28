@@ -1,5 +1,4 @@
 import express        from 'express';
-import dns            from 'dns/promises';
 import nodemailer     from 'nodemailer';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -114,29 +113,3 @@ app.get('/api/diag', diagHandler);
 app.get('*', (req, res) => res.sendFile(join(__dirname, 'public', 'index.html')));
 
 app.listen(PORT, () => console.log(`CM Tester running on http://localhost:${PORT}`));
-
-// ── GET /api/dns ──────────────────────────────────────────────────────────────
-// Query: ?domain=example.com&type=TXT|CNAME|MX|A
-
-app.get('/api/dns', async (req, res) => {
-  const { domain, type = 'TXT' } = req.query;
-  if (!domain) return res.status(400).json({ error: 'domain is required' });
-  const validTypes = ['A','AAAA','CNAME','MX','TXT','NS','SOA'];
-  const t = type.toUpperCase();
-  if (!validTypes.includes(t)) return res.status(400).json({ error: `type must be one of: ${validTypes.join(', ')}` });
-  try {
-    let records;
-    switch (t) {
-      case 'A':     records = await dns.resolve4(domain); break;
-      case 'AAAA':  records = await dns.resolve6(domain); break;
-      case 'CNAME': records = await dns.resolveCname(domain); break;
-      case 'MX':    records = await dns.resolveMx(domain); break;
-      case 'TXT':   records = (await dns.resolveTxt(domain)).map(r => r.join('')); break;
-      case 'NS':    records = await dns.resolveNs(domain); break;
-      default:      records = await dns.resolve(domain, t);
-    }
-    return res.json({ domain, type: t, records });
-  } catch (err) {
-    return res.status(404).json({ domain, type: t, error: err.message, code: err.code });
-  }
-});
