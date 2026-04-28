@@ -4,406 +4,423 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CM Transactional Tester</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* Campaign Monitor brand palette */
-    --cm-navy:    #1f2d5a;
-    --cm-navy2:   #28397a;
-    --cm-coral:   #e8432d;
-    --cm-coral-h: #d13520;
-    --cm-teal:    #00bfa5;
-    --cm-blue:    #3b7de8;
+    --navy:        #111324;
+    --violet:      #7856ff;
+    --violet-h:    #6644ee;
+    --cyan:        #51cfdb;
+    --sky:         #65b9ff;
+    --white:       #ffffff;
 
-    /* UI surfaces */
-    --bg:         #f4f6fa;
-    --surface:    #ffffff;
-    --surface2:   #f0f2f8;
-    --border:     #e2e6f0;
-    --border-focus: #3b7de8;
+    --sidebar-bg:  #0d0f1c;
+    --surface:     #1a1d30;
+    --surface2:    #21253a;
+    --surface3:    #282d45;
+    --border:      rgba(120,86,255,0.18);
+    --border2:     rgba(255,255,255,0.08);
 
-    /* Text */
-    --text:       #1a2340;
-    --text-muted: #5a6480;
-    --text-dim:   #9ba3bb;
+    --text:        #ffffff;
+    --text-muted:  rgba(255,255,255,0.60);
+    --text-dim:    rgba(255,255,255,0.35);
 
-    /* Status */
-    --success:    #00a878;
-    --success-bg: #e6f8f4;
-    --danger:     #e8432d;
-    --danger-bg:  #fdf0ee;
-    --warn:       #f5a623;
+    --success:     #51cfdb;
+    --success-bg:  rgba(81,207,219,0.12);
+    --danger:      #ff6b6b;
+    --danger-bg:   rgba(255,107,107,0.12);
 
-    --mono: 'DM Mono', monospace;
-    --sans: 'DM Sans', sans-serif;
+    --sans: Helvetica Neue, Helvetica, Arial, sans-serif;
+    --mono: 'Courier New', Courier, monospace;
     --radius: 10px;
-    --shadow: 0 2px 8px rgba(31,45,90,0.08);
-    --shadow-md: 0 4px 20px rgba(31,45,90,0.12);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; min-height: 100vh; line-height: 1.6; }
 
-  /* ── Sidebar ─────────────────────────────────────────────── */
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── Sidebar ───────────────────────────── */
   .app-layout { display: flex; min-height: 100vh; }
 
   .sidebar {
-    width: 230px;
-    background: var(--cm-navy);
+    width: 240px;
+    background: var(--sidebar-bg);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
     position: sticky;
     top: 0;
     height: 100vh;
+    border-right: 1px solid var(--border2);
   }
 
   .sidebar-logo {
-    padding: 24px 20px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 26px 22px 22px;
+    border-bottom: 1px solid var(--border2);
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
   }
-  .sidebar-logo-icon {
-    width: 34px; height: 34px;
-    background: var(--cm-coral);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
     flex-shrink: 0;
   }
-  .sidebar-logo-text { color: #fff; }
-  .sidebar-logo-title { font-size: 14px; font-weight: 600; line-height: 1.2; }
-  .sidebar-logo-sub   { font-size: 11px; opacity: 0.55; font-weight: 400; }
 
-  .sidebar-nav { padding: 16px 12px; flex: 1; }
-  .sidebar-section-label {
+  .logo-text-wrap { line-height: 1.25; }
+  .logo-title { font-size: 15px; font-weight: bold; color: var(--white); letter-spacing: -0.2px; }
+  .logo-sub   { font-size: 12px; color: var(--text-dim); margin-top: 1px; }
+
+  .sidebar-nav { padding: 18px 12px; flex: 1; }
+
+  .nav-section-label {
     font-size: 10px;
-    font-weight: 600;
+    font-weight: bold;
     text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: rgba(255,255,255,0.35);
-    padding: 8px 8px 6px;
+    letter-spacing: 1.4px;
+    color: var(--text-dim);
+    padding: 10px 10px 6px;
   }
 
   .tab-btn {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 11px;
     width: 100%;
     padding: 10px 12px;
     background: none;
     border: none;
     border-radius: 8px;
-    color: rgba(255,255,255,0.65);
+    color: var(--text-muted);
     font-family: var(--sans);
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 15px;
     cursor: pointer;
     text-align: left;
     transition: all 0.15s;
     margin-bottom: 2px;
   }
-  .tab-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
-  .tab-btn.active { background: rgba(255,255,255,0.15); color: #fff; }
-  .tab-btn.active .tab-pill { opacity: 1; }
-  .tab-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
-  .tab-pill {
-    margin-left: auto;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--cm-coral);
-    opacity: 0;
-    flex-shrink: 0;
+  .tab-btn:hover { background: var(--surface2); color: var(--white); }
+  .tab-btn.active {
+    background: linear-gradient(90deg, rgba(120,86,255,0.22), rgba(120,86,255,0.08));
+    color: var(--white);
+    border-left: 3px solid var(--violet);
+    padding-left: 9px;
   }
-
-  .sidebar-footer {
-    padding: 16px 20px;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    font-size: 11px;
-    color: rgba(255,255,255,0.3);
-    line-height: 1.5;
-  }
-
-  /* ── Main ────────────────────────────────────────────────── */
-  .main-panel { flex: 1; overflow-y: auto; }
-
-  /* Top bar */
-  .topbar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 32px;
-    height: 60px;
+  .tab-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+  .tab-btn.active .tab-icon { background: rgba(120,86,255,0.25); }
+  .tab-btn:not(.active) .tab-icon { background: var(--surface2); }
+
+  .sidebar-footer {
+    padding: 16px 22px;
+    border-top: 1px solid var(--border2);
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  /* ── Main ──────────────────────────────── */
+  .main-panel { flex: 1; overflow-y: auto; background: var(--navy); }
+
+  .topbar {
+    background: var(--sidebar-bg);
+    border-bottom: 1px solid var(--border2);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
     position: sticky;
     top: 0;
     z-index: 50;
   }
-  .topbar-title { font-size: 16px; font-weight: 600; color: var(--text); }
-  .topbar-sub   { font-size: 13px; color: var(--text-muted); margin-top: 1px; }
+  .topbar-title { font-size: 18px; font-weight: bold; color: var(--white); letter-spacing: -0.3px; }
+  .topbar-sub   { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
-  /* Content area */
   .content { padding: 28px 32px; max-width: 860px; }
 
   .panel { display: none; }
   .panel.active { display: block; }
 
-  /* ── Cards ───────────────────────────────────────────────── */
+  /* ── Cards ─────────────────────────────── */
   .card {
     background: var(--surface);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border2);
     border-radius: var(--radius);
     padding: 24px;
     margin-bottom: 16px;
-    box-shadow: var(--shadow);
   }
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
+  .card-auth {
+    border-color: rgba(120,86,255,0.35);
+    background: linear-gradient(135deg, var(--surface) 0%, rgba(120,86,255,0.06) 100%);
   }
-  .card-header-icon {
-    width: 32px; height: 32px;
+  .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .card-icon {
+    width: 34px; height: 34px;
     border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 15px;
-    flex-shrink: 0;
+    font-size: 16px; flex-shrink: 0;
   }
-  .icon-blue   { background: #eef3fd; }
-  .icon-coral  { background: #fdf0ee; }
-  .icon-teal   { background: #e6f8f4; }
-  .icon-navy   { background: #eef0f8; }
-  .card-header-text h3 { font-size: 14px; font-weight: 600; color: var(--text); }
-  .card-header-text p  { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .icon-violet { background: rgba(120,86,255,0.18); }
+  .icon-cyan   { background: rgba(81,207,219,0.15); }
+  .icon-sky    { background: rgba(101,185,255,0.15); }
+  .icon-dim    { background: var(--surface2); }
+  .card-header-text h3 { font-size: 15px; font-weight: bold; color: var(--white); }
+  .card-header-text p  { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
-  /* Auth card accent */
-  .card-auth {
-    border-left: 3px solid var(--cm-blue);
-    background: linear-gradient(135deg, #fff 0%, #f8faff 100%);
-  }
-
-  /* ── Form elements ───────────────────────────────────────── */
-  .form-grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .form-grid.single  { grid-template-columns: 1fr; }
-  .form-grid.thirds  { grid-template-columns: 1fr 1fr 1fr; }
-  .form-group  { display: flex; flex-direction: column; gap: 6px; }
+  /* ── Forms ─────────────────────────────── */
+  .form-grid        { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-grid.single { grid-template-columns: 1fr; }
+  .form-grid.thirds { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 7px; }
 
   .form-label {
     font-size: 12px;
-    font-weight: 600;
+    font-weight: bold;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
+    letter-spacing: 0.7px;
   }
-  .required { color: var(--cm-coral); }
+  .required { color: var(--violet); }
 
   .form-input, .form-textarea, .form-select {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    color: var(--text);
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    color: var(--white);
     font-family: var(--sans);
-    font-size: 14px;
-    padding: 9px 12px;
+    font-size: 15px;
+    padding: 10px 13px;
     border-radius: 8px;
     outline: none;
     transition: border-color 0.15s, box-shadow 0.15s;
     width: 100%;
   }
   .form-input:focus, .form-textarea:focus, .form-select:focus {
-    border-color: var(--border-focus);
-    box-shadow: 0 0 0 3px rgba(59,125,232,0.12);
+    border-color: var(--violet);
+    box-shadow: 0 0 0 3px rgba(120,86,255,0.18);
+    background: var(--surface3);
   }
   .form-input::placeholder, .form-textarea::placeholder { color: var(--text-dim); }
-  .form-textarea { font-family: var(--mono); font-size: 12.5px; resize: vertical; min-height: 110px; line-height: 1.6; }
-  .form-select { cursor: pointer; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a6480' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
-  .form-select option { background: #fff; }
-  .form-hint { font-size: 11.5px; color: var(--text-dim); }
+  .form-textarea { font-family: var(--mono); font-size: 13px; resize: vertical; min-height: 110px; line-height: 1.6; }
+  .form-select {
+    cursor: pointer;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    padding-right: 34px;
+  }
+  .form-select option { background: #1a1d30; color: #fff; }
+  .form-hint { font-size: 12px; color: var(--text-dim); }
 
-  /* Password field row */
   .input-with-action { display: flex; gap: 8px; align-items: center; }
   .input-with-action .form-input { flex: 1; }
-  .status-pill {
-    display: flex; align-items: center; gap: 6px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 4px 10px;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-muted);
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .status-pill.ok  { background: var(--success-bg); border-color: #b3e8dc; color: var(--success); }
-  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); }
-  .status-dot.ok   { background: var(--success); }
 
-  /* ── Buttons ─────────────────────────────────────────────── */
+  /* ── Buttons ───────────────────────────── */
   .btn {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 10px 20px;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 22px;
     border-radius: 8px; border: none;
-    font-family: var(--sans); font-size: 14px; font-weight: 600;
+    font-family: var(--sans); font-size: 15px; font-weight: bold;
     cursor: pointer; transition: all 0.15s; white-space: nowrap;
   }
-  .btn-primary { background: var(--cm-coral); color: #fff; }
-  .btn-primary:hover { background: var(--cm-coral-h); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(232,67,45,0.3); }
+  .btn-primary {
+    background: var(--violet);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--violet-h); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(120,86,255,0.4); }
   .btn-primary:active { transform: none; }
-  .btn-secondary { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); }
-  .btn-secondary:hover { background: var(--surface2); border-color: #c8cee0; }
-  .btn-ghost { background: none; color: var(--cm-blue); padding: 8px 12px; font-size: 13px; border: 1.5px solid transparent; font-weight: 500; }
-  .btn-ghost:hover { background: #eef3fd; border-color: #c5d8f7; }
-  .btn-sm { padding: 7px 14px; font-size: 13px; }
-  .btn-icon { padding: 8px 10px; }
+
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text-muted);
+    border: 1px solid var(--border2);
+  }
+  .btn-secondary:hover { background: var(--surface3); color: var(--white); border-color: rgba(255,255,255,0.15); }
+
+  .btn-ghost {
+    background: none;
+    color: var(--sky);
+    padding: 8px 12px;
+    font-size: 13px;
+    border: 1px solid transparent;
+    font-weight: normal;
+  }
+  .btn-ghost:hover { background: rgba(101,185,255,0.08); border-color: rgba(101,185,255,0.25); }
+
+  .btn-sm   { padding: 8px 15px; font-size: 13px; }
+  .btn-icon { padding: 9px 11px; font-size: 14px; }
   .btn-group { display: flex; gap: 10px; margin-top: 20px; align-items: center; flex-wrap: wrap; }
 
-  /* ── Smart email list ────────────────────────────────────── */
+  /* ── Status pill ───────────────────────── */
+  .status-pill {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px; font-weight: bold; color: var(--text-muted);
+    white-space: nowrap; flex-shrink: 0;
+    letter-spacing: 0.2px;
+  }
+  .status-pill.ok { background: var(--success-bg); border-color: rgba(81,207,219,0.3); color: var(--cyan); }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); }
+  .status-dot.ok { background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+
+  /* ── Smart email list ──────────────────── */
   .smart-email-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; max-height: 240px; overflow-y: auto; }
   .smart-email-item {
     display: flex; align-items: center; justify-content: space-between;
     padding: 12px 14px;
-    background: var(--bg);
-    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    border: 1px solid var(--border2);
     border-radius: 8px;
     cursor: pointer; transition: all 0.15s;
   }
-  .smart-email-item:hover { border-color: var(--cm-blue); background: #f5f8ff; }
-  .smart-email-item.selected { border-color: var(--cm-coral); background: #fff8f7; box-shadow: 0 0 0 3px rgba(232,67,45,0.08); }
-  .smart-email-name { font-size: 14px; font-weight: 500; }
+  .smart-email-item:hover { border-color: rgba(101,185,255,0.4); background: var(--surface3); }
+  .smart-email-item.selected { border-color: var(--violet); background: rgba(120,86,255,0.1); }
+  .smart-email-name { font-size: 15px; font-weight: bold; color: var(--white); }
   .smart-email-id   { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .badge { font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.3px; }
+  .badge-active { background: var(--success-bg); color: var(--cyan); }
+  .badge-draft  { background: rgba(101,185,255,0.12); color: var(--sky); }
 
-  .badge {
-    font-size: 11px; font-weight: 600; padding: 3px 9px;
-    border-radius: 20px; letter-spacing: 0.2px;
-  }
-  .badge-active { background: var(--success-bg); color: var(--success); }
-  .badge-draft  { background: #fff8e6; color: #b07200; }
-
-  /* ── Variables ───────────────────────────────────────────── */
+  /* ── Variables ─────────────────────────── */
   .var-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
   .var-row .form-input { flex: 1; }
   .var-remove { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 20px; line-height: 1; padding: 4px; transition: color 0.15s; flex-shrink: 0; }
   .var-remove:hover { color: var(--danger); }
 
-  /* ── SMTP connection ref ─────────────────────────────────── */
-  .conn-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px; margin-bottom: 20px;
-  }
-  .conn-item {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 14px;
-  }
-  .conn-key { font-size: 11px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
-  .conn-val { font-family: var(--mono); font-size: 12.5px; color: var(--cm-navy); font-weight: 500; }
+  /* ── Connection ref ────────────────────── */
+  .conn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .conn-item { background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; padding: 12px 14px; }
+  .conn-key { font-size: 10px; font-weight: bold; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .conn-val { font-family: var(--mono); font-size: 13px; color: var(--cyan); font-weight: bold; }
 
-  /* ── Info / alert boxes ──────────────────────────────────── */
+  /* ── Info box ──────────────────────────── */
   .info-box {
     display: flex; align-items: flex-start; gap: 10px;
-    background: #eef3fd; border: 1px solid #c5d8f7;
+    background: rgba(101,185,255,0.08);
+    border: 1px solid rgba(101,185,255,0.22);
     border-radius: 8px; padding: 12px 14px;
-    font-size: 13px; color: #2d5ab5;
+    font-size: 14px; color: var(--sky);
     margin-bottom: 16px;
   }
-  .info-box-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 
-  /* ── Response panel ──────────────────────────────────────── */
+  /* ── Response ──────────────────────────── */
   .response-panel { margin-top: 20px; display: none; }
   .response-panel.visible { display: block; }
   .response-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-  .response-tag {
-    font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
-  }
-  .tag-ok  { background: var(--success-bg); color: var(--success); }
-  .tag-err { background: var(--danger-bg); color: var(--danger); }
-  .response-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .response-tag { font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.3px; text-transform: uppercase; }
+  .tag-ok  { background: var(--success-bg); color: var(--cyan); border: 1px solid rgba(81,207,219,0.3); }
+  .tag-err { background: var(--danger-bg);  color: var(--danger); border: 1px solid rgba(255,107,107,0.3); }
+  .response-label { font-size: 12px; font-weight: bold; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; }
   .response-body {
-    background: #1a2340;
-    border-radius: 8px;
-    padding: 16px;
-    font-family: var(--mono); font-size: 12.5px;
-    color: #a8d8a8;
+    background: #090b14;
+    border: 1px solid var(--border2);
+    border-radius: 8px; padding: 16px;
+    font-family: var(--mono); font-size: 13px;
+    color: var(--cyan);
     white-space: pre-wrap; word-break: break-word;
     max-height: 300px; overflow-y: auto; line-height: 1.7;
   }
-  .response-body.err { color: #f8a09a; }
+  .response-body.err { color: var(--danger); }
 
-  /* ── Spinner / empty ─────────────────────────────────────── */
-  .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; vertical-align: middle; }
+  /* ── Misc ──────────────────────────────── */
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.2); border-top-color: var(--violet); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; vertical-align: middle; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .spinner-dark { border-color: rgba(31,45,90,0.2); border-top-color: var(--cm-navy); }
-
-  .empty-state { text-align: center; padding: 36px 20px; color: var(--text-dim); }
+  .empty-state { text-align: center; padding: 36px 20px; color: var(--text-dim); font-size: 14px; }
   .empty-icon  { font-size: 36px; margin-bottom: 10px; }
-  .empty-text  { font-size: 13px; }
 
-  /* ── Toast ───────────────────────────────────────────────── */
   .toast {
     position: fixed; bottom: 24px; right: 24px;
-    background: var(--cm-navy); color: #fff;
-    padding: 12px 18px; border-radius: 10px;
-    font-size: 13px; font-weight: 500;
-    box-shadow: var(--shadow-md); z-index: 999;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    color: var(--white);
+    padding: 13px 20px; border-radius: 10px;
+    font-size: 14px; font-weight: bold;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    z-index: 999;
     transform: translateY(60px); opacity: 0;
     transition: all 0.25s ease; max-width: 320px;
-    display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: center; gap: 10px;
   }
   .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.success { background: var(--success); }
-  .toast.error   { background: var(--danger); }
+  .toast.success { border-color: rgba(81,207,219,0.4); }
+  .toast.success::before { content: ''; width: 3px; border-radius: 2px; align-self: stretch; background: var(--cyan); flex-shrink: 0; }
+  .toast.error { border-color: rgba(255,107,107,0.4); }
+  .toast.error::before { content: ''; width: 3px; border-radius: 2px; align-self: stretch; background: var(--danger); flex-shrink: 0; }
 
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(120,86,255,0.4); }
 </style>
 </head>
 <body>
-
 <div class="app-layout">
 
-  <!-- ── Sidebar ─────────────────────────────────────────── -->
+  <!-- ══════════════════════
+       SIDEBAR
+  ══════════════════════ -->
   <div class="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon">✉️</div>
-      <div class="sidebar-logo-text">
-        <div class="sidebar-logo-title">Transactional Tester</div>
-        <div class="sidebar-logo-sub">Campaign Monitor</div>
+      <!-- CM envelope marque (white version) -->
+      <svg class="logo-mark" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Campaign Monitor logo">
+        <!-- Envelope body -->
+        <rect x="3" y="9" width="30" height="20" rx="2.5" fill="#7856ff"/>
+        <!-- Envelope flap fold lines -->
+        <path d="M3 11.5L18 20.5L33 11.5" stroke="white" stroke-width="1.8" stroke-linejoin="round" fill="none"/>
+        <!-- Left flap -->
+        <path d="M3 28L13.5 19" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Right flap -->
+        <path d="M33 28L22.5 19" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div class="logo-text-wrap">
+        <div class="logo-title">Campaign Monitor</div>
+        <div class="logo-sub">Transactional Tester</div>
       </div>
     </div>
 
     <div class="sidebar-nav">
-      <div class="sidebar-section-label">Send Email</div>
+      <div class="nav-section-label">Send Email</div>
       <button class="tab-btn active" onclick="showTab('smart')" id="tab-smart">
-        <span class="tab-icon">⚡</span> Smart Email <div class="tab-pill"></div>
+        <div class="tab-icon">⚡</div> Smart Email
       </button>
       <button class="tab-btn" onclick="showTab('classic')" id="tab-classic">
-        <span class="tab-icon">✉️</span> Classic API <div class="tab-pill"></div>
+        <div class="tab-icon">✉️</div> Classic API
       </button>
       <button class="tab-btn" onclick="showTab('smtp')" id="tab-smtp">
-        <span class="tab-icon">📡</span> Classic SMTP <div class="tab-pill"></div>
+        <div class="tab-icon">📡</div> Classic SMTP
       </button>
     </div>
 
     <div class="sidebar-footer">
-      Connects to<br>api.createsend.com &<br>smtp.api.createsend.com
+      api.createsend.com<br>
+      smtp.api.createsend.com
     </div>
   </div>
 
-  <!-- ── Main panel ──────────────────────────────────────── -->
+  <!-- ══════════════════════
+       MAIN PANEL
+  ══════════════════════ -->
   <div class="main-panel">
 
-    <!-- ════════════════════════════════
-         SMART EMAIL
-    ════════════════════════════════ -->
+    <!-- ── SMART EMAIL ────────────────────── -->
     <div class="panel active" id="panel-smart">
       <div class="topbar">
         <div>
@@ -415,7 +432,7 @@
 
         <div class="card card-auth">
           <div class="card-header">
-            <div class="card-header-icon icon-blue">🔑</div>
+            <div class="card-icon icon-violet">🔑</div>
             <div class="card-header-text">
               <h3>API Key</h3>
               <p>Found in your Campaign Monitor account settings</p>
@@ -435,11 +452,8 @@
 
         <div class="card">
           <div class="card-header">
-            <div class="card-header-icon icon-navy">📋</div>
-            <div class="card-header-text">
-              <h3>Load Templates</h3>
-              <p>Fetch your active smart emails from Campaign Monitor</p>
-            </div>
+            <div class="card-icon icon-dim">📋</div>
+            <div class="card-header-text"><h3>Load Templates</h3><p>Fetch your active smart emails from Campaign Monitor</p></div>
           </div>
           <div class="form-grid">
             <div class="form-group">
@@ -456,21 +470,15 @@
 
         <div class="card" id="smartSendCard" style="display:none">
           <div class="card-header">
-            <div class="card-header-icon icon-coral">⚡</div>
-            <div class="card-header-text">
-              <h3>Send Email</h3>
-              <p id="smartSendSubtitle">Configure recipients and variables</p>
-            </div>
+            <div class="card-icon icon-violet">⚡</div>
+            <div class="card-header-text"><h3>Send Email</h3><p>Configure recipients and variables</p></div>
           </div>
-          <div class="info-box">
-            <div class="info-box-icon">⚡</div>
-            <div>Sending smart email: <strong id="selectedSmartName"></strong></div>
-          </div>
+          <div class="info-box"><span>⚡</span><div>Sending: <strong id="selectedSmartName"></strong></div></div>
           <div class="form-grid">
             <div class="form-group">
               <label class="form-label">To <span class="required">*</span></label>
               <input type="text" class="form-input" id="smartTo" placeholder="recipient@example.com">
-              <span class="form-hint">Comma-separated · max 25 across To/CC/BCC</span>
+              <span class="form-hint">Comma-separated · max 25 across To / CC / BCC</span>
             </div>
             <div class="form-group">
               <label class="form-label">CC</label>
@@ -497,17 +505,14 @@
               <button class="btn btn-ghost btn-sm" onclick="addVar()">+ Add Variable</button>
             </label>
             <div id="varsContainer"></div>
-            <span class="form-hint" style="margin-top:4px">Key/value pairs merged into your template (e.g. username, order_id)</span>
+            <span class="form-hint" style="margin-top:4px">Key/value pairs merged into your template</span>
           </div>
           <div class="btn-group">
             <button class="btn btn-primary" onclick="sendSmart()"><span id="s2"></span> Send Smart Email</button>
             <button class="btn btn-secondary" onclick="clearSmart()">Clear</button>
           </div>
           <div class="response-panel" id="smartResp">
-            <div class="response-header">
-              <span class="response-label">Response</span>
-              <span class="response-tag" id="smartRespTag"></span>
-            </div>
+            <div class="response-header"><span class="response-label">Response</span><span class="response-tag" id="smartRespTag"></span></div>
             <pre class="response-body" id="smartRespBody"></pre>
           </div>
         </div>
@@ -515,9 +520,7 @@
       </div>
     </div>
 
-    <!-- ════════════════════════════════
-         CLASSIC API
-    ════════════════════════════════ -->
+    <!-- ── CLASSIC API ────────────────────── -->
     <div class="panel" id="panel-classic">
       <div class="topbar">
         <div>
@@ -529,11 +532,8 @@
 
         <div class="card card-auth">
           <div class="card-header">
-            <div class="card-header-icon icon-blue">🔑</div>
-            <div class="card-header-text">
-              <h3>API Key</h3>
-              <p>Found in your Campaign Monitor account settings</p>
-            </div>
+            <div class="card-icon icon-violet">🔑</div>
+            <div class="card-header-text"><h3>API Key</h3><p>Found in your Campaign Monitor account settings</p></div>
           </div>
           <div class="form-group">
             <div class="input-with-action">
@@ -548,19 +548,10 @@
         </div>
 
         <div class="card">
-          <div class="card-header">
-            <div class="card-header-icon icon-navy">👥</div>
-            <div class="card-header-text"><h3>Recipients</h3><p>Who is this email going to?</p></div>
-          </div>
+          <div class="card-header"><div class="card-icon icon-sky">👥</div><div class="card-header-text"><h3>Recipients</h3><p>Who is this email going to?</p></div></div>
           <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">To <span class="required">*</span></label>
-              <input type="text" class="form-input" id="cTo" placeholder="recipient@example.com">
-            </div>
-            <div class="form-group">
-              <label class="form-label">From <span class="required">*</span></label>
-              <input type="text" class="form-input" id="cFrom" placeholder="Sender Name &lt;sender@yourdomain.com&gt;">
-            </div>
+            <div class="form-group"><label class="form-label">To <span class="required">*</span></label><input type="text" class="form-input" id="cTo" placeholder="recipient@example.com"></div>
+            <div class="form-group"><label class="form-label">From <span class="required">*</span></label><input type="text" class="form-input" id="cFrom" placeholder="Sender Name &lt;sender@yourdomain.com&gt;"></div>
           </div>
           <div class="form-grid thirds">
             <div class="form-group"><label class="form-label">CC</label><input type="text" class="form-input" id="cCc" placeholder="cc@example.com"></div>
@@ -570,53 +561,24 @@
         </div>
 
         <div class="card">
-          <div class="card-header">
-            <div class="card-header-icon icon-coral">📝</div>
-            <div class="card-header-text"><h3>Content</h3><p>Subject line and email body</p></div>
-          </div>
+          <div class="card-header"><div class="card-icon icon-cyan">📝</div><div class="card-header-text"><h3>Content</h3><p>Subject line and email body</p></div></div>
           <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Subject <span class="required">*</span></label>
-              <input type="text" class="form-input" id="cSubject" value="Test transactional email">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Group</label>
-              <input type="text" class="form-input" id="cGroup" placeholder="e.g. Password Reset (for reporting)">
-            </div>
+            <div class="form-group"><label class="form-label">Subject <span class="required">*</span></label><input type="text" class="form-input" id="cSubject" value="Test transactional email"></div>
+            <div class="form-group"><label class="form-label">Group</label><input type="text" class="form-input" id="cGroup" placeholder="e.g. Password Reset"></div>
           </div>
-          <div class="form-grid single">
-            <div class="form-group">
-              <label class="form-label">HTML Body <span class="required">*</span></label>
-              <textarea class="form-textarea" id="cHtml" rows="6">&lt;h1&gt;Test Email&lt;/h1&gt;
+          <div class="form-grid single"><div class="form-group"><label class="form-label">HTML Body <span class="required">*</span></label><textarea class="form-textarea" id="cHtml" rows="6">&lt;h1&gt;Test Email&lt;/h1&gt;
 &lt;p&gt;This is a test transactional email sent via the Campaign Monitor Classic API.&lt;/p&gt;
-&lt;p&gt;If you received this, the integration is working correctly.&lt;/p&gt;</textarea>
-            </div>
-          </div>
-          <div class="form-grid single">
-            <div class="form-group">
-              <label class="form-label">Plain Text Body</label>
-              <textarea class="form-textarea" id="cText" rows="3">Test Email
+&lt;p&gt;If you received this, the integration is working correctly.&lt;/p&gt;</textarea></div></div>
+          <div class="form-grid single"><div class="form-group"><label class="form-label">Plain Text Body</label><textarea class="form-textarea" id="cText" rows="3">Test Email
 
 This is a test transactional email sent via the Campaign Monitor Classic API.
-If you received this, the integration is working correctly.</textarea>
-            </div>
-          </div>
+If you received this, the integration is working correctly.</textarea></div></div>
         </div>
 
         <div class="card">
-          <div class="card-header">
-            <div class="card-header-icon icon-teal">⚙️</div>
-            <div class="card-header-text"><h3>Options</h3><p>Tracking, consent and advanced settings</p></div>
-          </div>
+          <div class="card-header"><div class="card-icon icon-dim">⚙️</div><div class="card-header-text"><h3>Options</h3><p>Tracking, consent and advanced settings</p></div></div>
           <div class="form-grid thirds">
-            <div class="form-group">
-              <label class="form-label">Consent to Track <span class="required">*</span></label>
-              <select class="form-select" id="cConsent">
-                <option value="Yes">Yes — allow tracking</option>
-                <option value="No">No — disable tracking</option>
-                <option value="Unchanged">Unchanged</option>
-              </select>
-            </div>
+            <div class="form-group"><label class="form-label">Consent to Track <span class="required">*</span></label><select class="form-select" id="cConsent"><option value="Yes">Yes — allow tracking</option><option value="No">No — disable tracking</option><option value="Unchanged">Unchanged</option></select></div>
             <div class="form-group"><label class="form-label">Track Opens</label><select class="form-select" id="cTrackOpens"><option value="true">Yes</option><option value="false">No</option></select></div>
             <div class="form-group"><label class="form-label">Track Clicks</label><select class="form-select" id="cTrackClicks"><option value="true">Yes</option><option value="false">No</option></select></div>
           </div>
@@ -629,10 +591,7 @@ If you received this, the integration is working correctly.</textarea>
             <button class="btn btn-secondary" onclick="clearClassic()">Clear</button>
           </div>
           <div class="response-panel" id="classicResp">
-            <div class="response-header">
-              <span class="response-label">Response</span>
-              <span class="response-tag" id="classicRespTag"></span>
-            </div>
+            <div class="response-header"><span class="response-label">Response</span><span class="response-tag" id="classicRespTag"></span></div>
             <pre class="response-body" id="classicRespBody"></pre>
           </div>
         </div>
@@ -640,9 +599,7 @@ If you received this, the integration is working correctly.</textarea>
       </div>
     </div>
 
-    <!-- ════════════════════════════════
-         CLASSIC SMTP
-    ════════════════════════════════ -->
+    <!-- ── CLASSIC SMTP ───────────────────── -->
     <div class="panel" id="panel-smtp">
       <div class="topbar">
         <div>
@@ -654,10 +611,10 @@ If you received this, the integration is working correctly.</textarea>
 
         <div class="card card-auth">
           <div class="card-header">
-            <div class="card-header-icon icon-blue">🔐</div>
+            <div class="card-icon icon-violet">🔐</div>
             <div class="card-header-text">
               <h3>SMTP Token</h3>
-              <p>Found in your CM account under Transactional → SMTP Settings · used as both username and password</p>
+              <p>Found in CM account → Transactional → SMTP Settings · used as username and password</p>
             </div>
           </div>
           <div class="form-group">
@@ -673,10 +630,7 @@ If you received this, the integration is working correctly.</textarea>
         </div>
 
         <div class="card">
-          <div class="card-header">
-            <div class="card-header-icon icon-navy">🔌</div>
-            <div class="card-header-text"><h3>Connection Settings</h3><p>SMTP server details and port selection</p></div>
-          </div>
+          <div class="card-header"><div class="card-icon icon-dim">🔌</div><div class="card-header-text"><h3>Connection Settings</h3><p>SMTP server details and port selection</p></div></div>
           <div class="conn-grid">
             <div class="conn-item"><div class="conn-key">SMTP Host</div><div class="conn-val">smtp.api.createsend.com</div></div>
             <div class="conn-item"><div class="conn-key">Username</div><div class="conn-val">SMTP Token</div></div>
@@ -687,7 +641,7 @@ If you received this, the integration is working correctly.</textarea>
               <label class="form-label">Port</label>
               <select class="form-select" id="smtpPort">
                 <option value="auto">Auto — try 2525, 465, 587 in order</option>
-                <option value="2525">2525 — recommended (most widely unblocked)</option>
+                <option value="2525">2525 — recommended</option>
                 <option value="587">587 — STARTTLS</option>
                 <option value="465">465 — SSL</option>
                 <option value="25">25 — plain (often blocked)</option>
@@ -697,20 +651,10 @@ If you received this, the integration is working correctly.</textarea>
         </div>
 
         <div class="card">
-          <div class="card-header">
-            <div class="card-header-icon icon-navy">👥</div>
-            <div class="card-header-text"><h3>Recipients</h3><p>Who is this email going to?</p></div>
-          </div>
+          <div class="card-header"><div class="card-icon icon-sky">👥</div><div class="card-header-text"><h3>Recipients</h3></div></div>
           <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">To <span class="required">*</span></label>
-              <input type="text" class="form-input" id="smTo" placeholder="recipient@example.com">
-              <span class="form-hint">Comma-separated</span>
-            </div>
-            <div class="form-group">
-              <label class="form-label">From <span class="required">*</span></label>
-              <input type="text" class="form-input" id="smFrom" placeholder="Sender Name &lt;sender@yourdomain.com&gt;">
-            </div>
+            <div class="form-group"><label class="form-label">To <span class="required">*</span></label><input type="text" class="form-input" id="smTo" placeholder="recipient@example.com"><span class="form-hint">Comma-separated</span></div>
+            <div class="form-group"><label class="form-label">From <span class="required">*</span></label><input type="text" class="form-input" id="smFrom" placeholder="Sender Name &lt;sender@yourdomain.com&gt;"></div>
           </div>
           <div class="form-grid thirds">
             <div class="form-group"><label class="form-label">CC</label><input type="text" class="form-input" id="smCc" placeholder="cc@example.com"></div>
@@ -720,43 +664,22 @@ If you received this, the integration is working correctly.</textarea>
         </div>
 
         <div class="card">
-          <div class="card-header">
-            <div class="card-header-icon icon-coral">📝</div>
-            <div class="card-header-text"><h3>Content</h3><p>Subject line and email body</p></div>
-          </div>
-          <div class="form-grid single">
-            <div class="form-group">
-              <label class="form-label">Subject <span class="required">*</span></label>
-              <input type="text" class="form-input" id="smSubject" value="Test SMTP transactional email">
-            </div>
-          </div>
-          <div class="form-grid single">
-            <div class="form-group">
-              <label class="form-label">HTML Body <span class="required">*</span></label>
-              <textarea class="form-textarea" id="smHtml" rows="6">&lt;h1&gt;Test SMTP Email&lt;/h1&gt;
+          <div class="card-header"><div class="card-icon icon-cyan">📝</div><div class="card-header-text"><h3>Content</h3></div></div>
+          <div class="form-grid single"><div class="form-group"><label class="form-label">Subject <span class="required">*</span></label><input type="text" class="form-input" id="smSubject" value="Test SMTP transactional email"></div></div>
+          <div class="form-grid single"><div class="form-group"><label class="form-label">HTML Body <span class="required">*</span></label><textarea class="form-textarea" id="smHtml" rows="6">&lt;h1&gt;Test SMTP Email&lt;/h1&gt;
 &lt;p&gt;This is a test transactional email sent via the Campaign Monitor Classic SMTP relay.&lt;/p&gt;
-&lt;p&gt;If you received this, the SMTP integration is working correctly.&lt;/p&gt;</textarea>
-            </div>
-          </div>
-          <div class="form-grid single">
-            <div class="form-group">
-              <label class="form-label">Plain Text Body</label>
-              <textarea class="form-textarea" id="smText" rows="3">Test SMTP Email
+&lt;p&gt;If you received this, the SMTP integration is working correctly.&lt;/p&gt;</textarea></div></div>
+          <div class="form-grid single"><div class="form-group"><label class="form-label">Plain Text Body</label><textarea class="form-textarea" id="smText" rows="3">Test SMTP Email
 
 This is a test transactional email sent via the Campaign Monitor Classic SMTP relay.
-If you received this, the SMTP integration is working correctly.</textarea>
-            </div>
-          </div>
+If you received this, the SMTP integration is working correctly.</textarea></div></div>
           <div class="btn-group">
             <button class="btn btn-primary" onclick="sendSmtp()"><span id="s7"></span> Send via SMTP</button>
             <button class="btn btn-secondary" onclick="clearSmtp()">Clear</button>
             <button class="btn btn-secondary" onclick="runDiag()" id="diagBtn">🔬 Diagnose Connection</button>
           </div>
           <div class="response-panel" id="smtpResp">
-            <div class="response-header">
-              <span class="response-label">Response</span>
-              <span class="response-tag" id="smtpRespTag"></span>
-            </div>
+            <div class="response-header"><span class="response-label">Response</span><span class="response-tag" id="smtpRespTag"></span></div>
             <pre class="response-body" id="smtpRespBody"></pre>
           </div>
         </div>
@@ -764,8 +687,8 @@ If you received this, the SMTP integration is working correctly.</textarea>
       </div>
     </div>
 
-  </div><!-- /main-panel -->
-</div><!-- /app-layout -->
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -778,249 +701,149 @@ const parseList = s => s?.trim() ? s.split(',').map(x=>x.trim()).filter(Boolean)
 function showTab(t) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  $('panel-' + t).classList.add('active');
-  $('tab-' + t).classList.add('active');
+  $('panel-'+t).classList.add('active'); $('tab-'+t).classList.add('active');
 }
-
 function syncApiKey(src) {
-  const val = src.value;
-  $('apiKey').value = val;
-  $('apiKeyClassic').value = val;
-  updateStatusEl('apiStatusDot','apiStatusText','apiStatusPill', val, 'Key');
-  updateStatusEl('apiStatusDotC','apiStatusTextC','apiStatusPillC', val, 'Key');
+  const v=src.value; $('apiKey').value=v; $('apiKeyClassic').value=v;
+  updateStatusEl('apiStatusDot','apiStatusText','apiStatusPill',v,'Key');
+  updateStatusEl('apiStatusDotC','apiStatusTextC','apiStatusPillC',v,'Key');
 }
-
 function updateStatus(type) {
-  if (type === 'api') {
-    const val = $('apiKey').value;
-    $('apiKeyClassic').value = val;
-    updateStatusEl('apiStatusDot','apiStatusText','apiStatusPill', val, 'Key');
-    updateStatusEl('apiStatusDotC','apiStatusTextC','apiStatusPillC', val, 'Key');
-  } else {
-    updateStatusEl('smtpStatusDot','smtpStatusText','smtpStatusPill', $('smtpToken').value, 'Token');
-  }
+  if (type==='api') { const v=$('apiKey').value; $('apiKeyClassic').value=v; updateStatusEl('apiStatusDot','apiStatusText','apiStatusPill',v,'Key'); updateStatusEl('apiStatusDotC','apiStatusTextC','apiStatusPillC',v,'Key'); }
+  else updateStatusEl('smtpStatusDot','smtpStatusText','smtpStatusPill',$('smtpToken').value,'Token');
 }
-
-function updateStatusEl(dotId, textId, pillId, val, label) {
-  const ok = val.trim().length > 0;
-  $(dotId).className  = 'status-dot' + (ok ? ' ok' : '');
-  $(textId).textContent = ok ? label + ' ready' : 'Not set';
-  $(pillId).className = 'status-pill' + (ok ? ' ok' : '');
+function updateStatusEl(dotId,textId,pillId,val,label) {
+  const ok=val.trim().length>0;
+  $(dotId).className='status-dot'+(ok?' ok':'');
+  $(textId).textContent=ok?label+' ready':'Not set';
+  $(pillId).className='status-pill'+(ok?' ok':'');
 }
-
-function toggleVis(id) { const i=$(id); i.type = i.type==='password'?'text':'password'; }
-
-function toast(msg, type='success') {
-  const t = $('toast');
-  t.textContent = (type==='success' ? '✓  ' : '✗  ') + msg;
-  t.className = 'toast ' + type + ' show';
-  setTimeout(() => t.classList.remove('show'), 3500);
+function toggleVis(id){const i=$(id);i.type=i.type==='password'?'text':'password';}
+function toast(msg,type='success'){
+  const t=$('toast'); t.textContent=msg;
+  t.className='toast '+type+' show'; setTimeout(()=>t.classList.remove('show'),3500);
 }
-
-function spin(id, on) {
-  const el = $(id);
-  if (!el) return;
-  el.innerHTML = on ? '<span class="spinner"></span>' : '';
-}
-
-function showResp(panelId, tagId, bodyId, ok, code, data) {
+function spin(id,on){const el=$(id);if(el)el.innerHTML=on?'<span class="spinner"></span>':'';}
+function showResp(panelId,tagId,bodyId,ok,code,data){
   $(panelId).classList.add('visible');
-  $(tagId).textContent = code;
-  $(tagId).className = 'response-tag ' + (ok ? 'tag-ok' : 'tag-err');
-  $(bodyId).className = 'response-body' + (ok ? '' : ' err');
-  $(bodyId).textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+  $(tagId).textContent=code; $(tagId).className='response-tag '+(ok?'tag-ok':'tag-err');
+  $(bodyId).className='response-body'+(ok?'':' err');
+  $(bodyId).textContent=typeof data==='string'?data:JSON.stringify(data,null,2);
 }
 
-async function api(method, path, body=null) {
-  const apiKey = $('apiKey').value.trim();
-  if (!apiKey) { toast('Please enter your API key first', 'error'); throw new Error('no key'); }
-  const res = await fetch('/api/proxy', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ method, path, apiKey, body })
-  });
-  let data; try { data = await res.json(); } catch { data = {}; }
-  return { ok: res.ok, status: res.status, data };
+async function api(method,path,body=null){
+  const apiKey=$('apiKey').value.trim();
+  if(!apiKey){toast('Please enter your API key first','error');throw new Error('no key');}
+  const res=await fetch('/api/proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({method,path,apiKey,body})});
+  let data;try{data=await res.json();}catch{data={};}
+  return{ok:res.ok,status:res.status,data};
+}
+async function smtpApi(payload){
+  const smtpToken=$('smtpToken').value.trim();
+  if(!smtpToken){toast('Please enter your SMTP Token first','error');throw new Error('no token');}
+  const res=await fetch('/api/smtp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({smtpToken,...payload})});
+  let data;try{data=await res.json();}catch{data={};}
+  return{ok:res.ok,status:res.status,data};
 }
 
-async function smtpApi(payload) {
-  const smtpToken = $('smtpToken').value.trim();
-  if (!smtpToken) { toast('Please enter your SMTP Token first', 'error'); throw new Error('no token'); }
-  const res = await fetch('/api/smtp', {
-    method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ smtpToken, ...payload })
-  });
-  let data; try { data = await res.json(); } catch { data = {}; }
-  return { ok: res.ok, status: res.status, data };
-}
-
-// ── Smart ─────────────────────────────────────────────────────
-async function loadSmartEmails() {
-  spin('s1', true);
-  const cid = $('smartClientId').value.trim();
-  let path = '/api/v3.3/transactional/smartEmail?status=all';
-  if (cid) path += '&clientID=' + encodeURIComponent(cid);
-  try {
-    const {ok, data} = await api('GET', path);
-    const el = $('smartEmailList'); el.style.display = 'flex';
-    if (!ok || !Array.isArray(data) || !data.length) {
-      el.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">No smart emails found. Check your API key and Client ID.</div></div>';
-      toast('No smart emails found', 'error');
+async function loadSmartEmails(){
+  spin('s1',true); const cid=$('smartClientId').value.trim();
+  let path='/api/v3.3/transactional/smartEmail?status=all'; if(cid)path+='&clientID='+encodeURIComponent(cid);
+  try{
+    const{ok,data}=await api('GET',path); const el=$('smartEmailList'); el.style.display='flex';
+    if(!ok||!Array.isArray(data)||!data.length){
+      el.innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><div>No smart emails found. Check your API key and Client ID.</div></div>';
+      toast('No smart emails found','error');
     } else {
-      el.innerHTML = data.map(e => `
+      el.innerHTML=data.map(e=>`
         <div class="smart-email-item" onclick="selSmart('${esc(e.ID)}','${esc(e.Name)}',this)">
-          <div>
-            <div class="smart-email-name">${esc(e.Name)}</div>
-            <div class="smart-email-id">${esc(e.ID)}</div>
-          </div>
+          <div><div class="smart-email-name">${esc(e.Name)}</div><div class="smart-email-id">${esc(e.ID)}</div></div>
           <span class="badge ${e.Status==='Active'?'badge-active':'badge-draft'}">${esc(e.Status)}</span>
         </div>`).join('');
-      toast(`Loaded ${data.length} smart email${data.length!==1?'s':''}`);
+      toast(`Loaded ${data.length} smart email${data.length!==1?'s':''}`,'success');
     }
-  } catch(e) { if(e.message!=='no key') toast('Error loading smart emails', 'error'); }
-  spin('s1', false);
+  }catch(e){if(e.message!=='no key')toast('Error loading smart emails','error');}
+  spin('s1',false);
 }
-
-function selSmart(id, name, el) {
-  selSmartId = id;
-  document.querySelectorAll('.smart-email-item').forEach(i => i.classList.remove('selected'));
-  el.classList.add('selected');
-  $('selectedSmartName').textContent = name;
-  $('smartSendCard').style.display = 'block';
-  $('smartSendCard').scrollIntoView({behavior:'smooth', block:'nearest'});
+function selSmart(id,name,el){
+  selSmartId=id; document.querySelectorAll('.smart-email-item').forEach(i=>i.classList.remove('selected')); el.classList.add('selected');
+  $('selectedSmartName').textContent=name; $('smartSendCard').style.display='block';
+  $('smartSendCard').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-
-function addVar(k='', v='') {
-  const c = $('varsContainer'), id = ++varN, row = document.createElement('div');
-  row.className = 'var-row'; row.id = 'vr-' + id;
-  row.innerHTML = `
-    <input type="text" class="form-input" placeholder="variable_name" value="${esc(k)}" id="vk-${id}">
-    <input type="text" class="form-input" placeholder="value" value="${esc(v)}" id="vv-${id}">
-    <button class="var-remove" onclick="document.getElementById('vr-${id}').remove()">×</button>`;
+function addVar(k='',v=''){
+  const c=$('varsContainer'),id=++varN,row=document.createElement('div');
+  row.className='var-row'; row.id='vr-'+id;
+  row.innerHTML=`<input type="text" class="form-input" placeholder="variable_name" value="${esc(k)}" id="vk-${id}"><input type="text" class="form-input" placeholder="value" value="${esc(v)}" id="vv-${id}"><button class="var-remove" onclick="document.getElementById('vr-${id}').remove()">×</button>`;
   c.appendChild(row);
 }
-
-function collectVars() {
-  const d = {};
-  document.querySelectorAll('.var-row').forEach(r => {
-    const id = r.id.replace('vr-','');
-    const k = $('vk-'+id)?.value.trim(), v = $('vv-'+id)?.value;
-    if (k) d[k] = v;
-  });
-  return Object.keys(d).length ? d : undefined;
+function collectVars(){
+  const d={};
+  document.querySelectorAll('.var-row').forEach(r=>{const id=r.id.replace('vr-','');const k=$('vk-'+id)?.value.trim(),v=$('vv-'+id)?.value;if(k)d[k]=v;});
+  return Object.keys(d).length?d:undefined;
 }
-
-async function sendSmart() {
-  if (!selSmartId) { toast('Please select a smart email template first', 'error'); return; }
-  const to = parseList($('smartTo').value);
-  if (!to?.length) { toast('At least one recipient is required', 'error'); return; }
-  spin('s2', true);
-  const payload = { To:to, ConsentToTrack: $('smartConsent').value };
-  const cc=parseList($('smartCc').value), bcc=parseList($('smartBcc').value);
-  if (cc) payload.CC=cc; if (bcc) payload.BCC=bcc;
-  const vars = collectVars(); if (vars) payload.Data = vars;
-  try {
-    const {ok,status,data} = await api('POST', `/api/v3.3/transactional/smartEmail/${selSmartId}/send`, payload);
-    showResp('smartResp','smartRespTag','smartRespBody', ok, status, data);
-    toast(ok ? 'Smart email sent successfully!' : 'Send failed — see response below', ok?'success':'error');
-  } catch(e) { if(e.message!=='no key') toast('Request failed', 'error'); }
-  spin('s2', false);
+async function sendSmart(){
+  if(!selSmartId){toast('Select a smart email template first','error');return;}
+  const to=parseList($('smartTo').value); if(!to?.length){toast('At least one recipient required','error');return;}
+  spin('s2',true);
+  const payload={To:to,ConsentToTrack:$('smartConsent').value};
+  const cc=parseList($('smartCc').value),bcc=parseList($('smartBcc').value);
+  if(cc)payload.CC=cc; if(bcc)payload.BCC=bcc;
+  const vars=collectVars(); if(vars)payload.Data=vars;
+  try{const{ok,status,data}=await api('POST',`/api/v3.3/transactional/smartEmail/${selSmartId}/send`,payload);showResp('smartResp','smartRespTag','smartRespBody',ok,status,data);toast(ok?'Smart email sent!':'Send failed — see response below',ok?'success':'error');}
+  catch(e){if(e.message!=='no key')toast('Request failed','error');}
+  spin('s2',false);
 }
+function clearSmart(){['smartTo','smartCc','smartBcc'].forEach(id=>$(id).value='');$('varsContainer').innerHTML='';$('smartResp').classList.remove('visible');}
 
-function clearSmart() {
-  ['smartTo','smartCc','smartBcc'].forEach(id => $(id).value='');
-  $('varsContainer').innerHTML='';
-  $('smartResp').classList.remove('visible');
+async function sendClassic(){
+  const to=parseList($('cTo').value),from=$('cFrom').value.trim(),subj=$('cSubject').value.trim(),html=$('cHtml').value.trim();
+  if(!to?.length){toast('Recipient required','error');return;} if(!from){toast('From required','error');return;} if(!subj){toast('Subject required','error');return;} if(!html){toast('HTML body required','error');return;}
+  spin('s3',true);
+  const payload={To:to,From:from,Subject:subj,Html:html,ConsentToTrack:$('cConsent').value,TrackOpens:$('cTrackOpens').value==='true',TrackClicks:$('cTrackClicks').value==='true',InlineCSS:$('cInlineCss').value==='true'};
+  const cc=parseList($('cCc').value),bcc=parseList($('cBcc').value),text=$('cText').value.trim(),replyTo=$('cReplyTo').value.trim(),group=$('cGroup').value.trim(),cid=$('cClientId').value.trim();
+  if(cc)payload.CC=cc; if(bcc)payload.BCC=bcc; if(text)payload.Text=text; if(replyTo)payload.ReplyTo=replyTo; if(group)payload.Group=group;
+  let path='/api/v3.3/transactional/classicEmail/send'; if(cid)path+='?clientID='+encodeURIComponent(cid);
+  try{const{ok,status,data}=await api('POST',path,payload);showResp('classicResp','classicRespTag','classicRespBody',ok,status,data);toast(ok?'Classic email sent!':'Send failed — see response below',ok?'success':'error');}
+  catch(e){if(e.message!=='no key')toast('Request failed','error');}
+  spin('s3',false);
 }
-
-// ── Classic API ───────────────────────────────────────────────
-async function sendClassic() {
-  const to=parseList($('cTo').value), from=$('cFrom').value.trim();
-  const subj=$('cSubject').value.trim(), html=$('cHtml').value.trim();
-  if (!to?.length) { toast('Recipient is required', 'error'); return; }
-  if (!from)       { toast('From address is required', 'error'); return; }
-  if (!subj)       { toast('Subject is required', 'error'); return; }
-  if (!html)       { toast('HTML body is required', 'error'); return; }
-  spin('s3', true);
-  const payload = {
-    To:to, From:from, Subject:subj, Html:html,
-    ConsentToTrack: $('cConsent').value,
-    TrackOpens: $('cTrackOpens').value==='true',
-    TrackClicks: $('cTrackClicks').value==='true',
-    InlineCSS: $('cInlineCss').value==='true'
-  };
-  const cc=parseList($('cCc').value), bcc=parseList($('cBcc').value);
-  const text=$('cText').value.trim(), replyTo=$('cReplyTo').value.trim();
-  const group=$('cGroup').value.trim(), cid=$('cClientId').value.trim();
-  if (cc) payload.CC=cc; if (bcc) payload.BCC=bcc;
-  if (text) payload.Text=text; if (replyTo) payload.ReplyTo=replyTo;
-  if (group) payload.Group=group;
-  let path = '/api/v3.3/transactional/classicEmail/send';
-  if (cid) path += '?clientID=' + encodeURIComponent(cid);
-  try {
-    const {ok,status,data} = await api('POST', path, payload);
-    showResp('classicResp','classicRespTag','classicRespBody', ok, status, data);
-    toast(ok ? 'Classic email sent successfully!' : 'Send failed — see response below', ok?'success':'error');
-  } catch(e) { if(e.message!=='no key') toast('Request failed', 'error'); }
-  spin('s3', false);
-}
-
-function clearClassic() {
-  ['cTo','cFrom','cCc','cBcc','cReplyTo','cGroup','cClientId'].forEach(id => $(id).value='');
-  $('cSubject').value = 'Test transactional email';
-  $('cHtml').value = '<h1>Test Email</h1>\n<p>This is a test transactional email sent via the Campaign Monitor Classic API.</p>\n<p>If you received this, the integration is working correctly.</p>';
-  $('cText').value = 'Test Email\n\nThis is a test transactional email sent via the Campaign Monitor Classic API.\nIf you received this, the integration is working correctly.';
+function clearClassic(){
+  ['cTo','cFrom','cCc','cBcc','cReplyTo','cGroup','cClientId'].forEach(id=>$(id).value='');
+  $('cSubject').value='Test transactional email';
+  $('cHtml').value='<h1>Test Email</h1>\n<p>This is a test transactional email sent via the Campaign Monitor Classic API.</p>\n<p>If you received this, the integration is working correctly.</p>';
+  $('cText').value='Test Email\n\nThis is a test transactional email sent via the Campaign Monitor Classic API.\nIf you received this, the integration is working correctly.';
   $('classicResp').classList.remove('visible');
 }
 
-// ── Classic SMTP ──────────────────────────────────────────────
-async function sendSmtp() {
-  const to=parseList($('smTo').value), from=$('smFrom').value.trim();
-  const subj=$('smSubject').value.trim(), html=$('smHtml').value.trim(), text=$('smText').value.trim();
-  if (!to?.length)   { toast('Recipient is required', 'error'); return; }
-  if (!from)         { toast('From address is required', 'error'); return; }
-  if (!subj)         { toast('Subject is required', 'error'); return; }
-  if (!html && !text){ toast('HTML or text body is required', 'error'); return; }
-  spin('s7', true);
-  const payload = { from, to, subject:subj, port: $('smtpPort').value };
-  const cc=parseList($('smCc').value), bcc=parseList($('smBcc').value), replyTo=$('smReplyTo').value.trim();
-  if (cc) payload.cc=cc; if (bcc) payload.bcc=bcc; if (replyTo) payload.replyTo=replyTo;
-  if (html) payload.html=html; if (text) payload.text=text;
-  try {
-    const {ok,status,data} = await smtpApi(payload);
-    showResp('smtpResp','smtpRespTag','smtpRespBody', ok, status, data);
-    toast(ok ? 'SMTP email sent successfully!' : 'SMTP send failed — see response below', ok?'success':'error');
-  } catch(e) { if(e.message!=='no token') toast('Request failed', 'error'); }
-  spin('s7', false);
+async function sendSmtp(){
+  const to=parseList($('smTo').value),from=$('smFrom').value.trim(),subj=$('smSubject').value.trim(),html=$('smHtml').value.trim(),text=$('smText').value.trim();
+  if(!to?.length){toast('Recipient required','error');return;} if(!from){toast('From required','error');return;} if(!subj){toast('Subject required','error');return;} if(!html&&!text){toast('HTML or text body required','error');return;}
+  spin('s7',true);
+  const payload={from,to,subject:subj,port:$('smtpPort').value};
+  const cc=parseList($('smCc').value),bcc=parseList($('smBcc').value),replyTo=$('smReplyTo').value.trim();
+  if(cc)payload.cc=cc; if(bcc)payload.bcc=bcc; if(replyTo)payload.replyTo=replyTo; if(html)payload.html=html; if(text)payload.text=text;
+  try{const{ok,status,data}=await smtpApi(payload);showResp('smtpResp','smtpRespTag','smtpRespBody',ok,status,data);toast(ok?'SMTP email sent!':'SMTP send failed — see response below',ok?'success':'error');}
+  catch(e){if(e.message!=='no token')toast('Request failed','error');}
+  spin('s7',false);
 }
-
-function clearSmtp() {
-  ['smTo','smFrom','smCc','smBcc','smReplyTo'].forEach(id => $(id).value='');
-  $('smSubject').value = 'Test SMTP transactional email';
-  $('smHtml').value = '<h1>Test SMTP Email</h1>\n<p>This is a test transactional email sent via the Campaign Monitor Classic SMTP relay.</p>\n<p>If you received this, the SMTP integration is working correctly.</p>';
-  $('smText').value = 'Test SMTP Email\n\nThis is a test transactional email sent via the Campaign Monitor Classic SMTP relay.\nIf you received this, the SMTP integration is working correctly.';
+function clearSmtp(){
+  ['smTo','smFrom','smCc','smBcc','smReplyTo'].forEach(id=>$(id).value='');
+  $('smSubject').value='Test SMTP transactional email';
+  $('smHtml').value='<h1>Test SMTP Email</h1>\n<p>This is a test transactional email sent via the Campaign Monitor Classic SMTP relay.</p>\n<p>If you received this, the SMTP integration is working correctly.</p>';
+  $('smText').value='Test SMTP Email\n\nThis is a test transactional email sent via the Campaign Monitor Classic SMTP relay.\nIf you received this, the SMTP integration is working correctly.';
   $('smtpResp').classList.remove('visible');
 }
-
-// ── Diagnostics ───────────────────────────────────────────────
-async function runDiag() {
-  const btn = $('diagBtn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner spinner-dark"></span> Running…';
-  toast('Running connection diagnostics…');
-  try {
-    const res  = await fetch('/api/diag');
-    const data = await res.json();
-    const dnsLine = data.dns?.ok
-      ? '✅ DNS OK — ' + (data.dns.addresses||[]).join(', ')
-      : '❌ DNS FAILED — ' + data.dns?.error;
-    const portLines = (data.ports||[]).map(p =>
-      (p.ok?'✅':'❌') + ' Port ' + p.port + ': ' +
-      (p.ok ? 'OPEN (' + p.ms + 'ms)' : p.error + ' [' + p.code + ']')
-    ).join('\n');
-    const summary = '=== CM SMTP Diagnostic Report ===\nHost: ' + data.host + '\n\n' + dnsLine + '\n\n' + portLines;
-    showResp('smtpResp','smtpRespTag','smtpRespBody', res.ok, res.status, summary);
-    toast(res.ok ? 'A port is open — SMTP should work!' : 'All ports blocked — see report', res.ok?'success':'error');
-  } catch(e) { toast('Diagnostics failed: ' + e.message, 'error'); }
-  btn.disabled = false; btn.textContent = '🔬 Diagnose Connection';
+async function runDiag(){
+  const btn=$('diagBtn'); btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Running…';
+  toast('Running connection diagnostics…','success');
+  try{
+    const res=await fetch('/api/diag'); const data=await res.json();
+    const dnsLine=data.dns?.ok?'✅ DNS OK — '+(data.dns.addresses||[]).join(', '):'❌ DNS FAILED — '+data.dns?.error;
+    const portLines=(data.ports||[]).map(p=>(p.ok?'✅':'❌')+' Port '+p.port+': '+(p.ok?'OPEN ('+p.ms+'ms)':p.error+' ['+p.code+']')).join('\n');
+    showResp('smtpResp','smtpRespTag','smtpRespBody',res.ok,res.status,'=== CM SMTP Diagnostic Report ===\nHost: '+data.host+'\n\n'+dnsLine+'\n\n'+portLines);
+    toast(res.ok?'A port is open!':'All ports blocked — see report',res.ok?'success':'error');
+  }catch(e){toast('Diagnostics failed: '+e.message,'error');}
+  btn.disabled=false; btn.textContent='🔬 Diagnose Connection';
 }
 </script>
 </body>
